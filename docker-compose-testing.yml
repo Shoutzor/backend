@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  mysql:
+    image: 'mysql:8'
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE:?MYSQL_DB_NOT_PROVIDED}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:?MYSQL_PASSWORD_NOT_PROVIDED}
+
+  redis:
+    image: 'bitnami/redis:7.0'
+    environment:
+      - REDIS_PASSWORD
+      - REDIS_TLS_ENABLED
+      - REDIS_TLS_CERT_FILE
+      - REDIS_TLS_KEY_FILE
+      - REDIS_TLS_CA_FILE

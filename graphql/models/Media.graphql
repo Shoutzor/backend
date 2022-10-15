@@ -1,0 +1,10 @@
+type Media implements HasArtists & HasImage {
+    id: ID!
+    title: String!
+    duration: Int!
+    is_video: Boolean!
+    image: String
+    source: String!
+    album: Album @belongsTo
+    artists: [Artist!]! @belongsToMany
+}

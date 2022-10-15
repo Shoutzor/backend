@@ -1,0 +1,42 @@
+name: Test
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v3
+      - 
+        name: Setup PHP
+        uses: shivammathur/setup-php@2.21.2
+      - 
+        name: Start required containers for testing
+        run: docker compose -f docker-compose-testing.yml up
+      - 
+        name: Run composer install and install shoutzor
+        uses: php-actions/composer@v6
+        with:
+          command: install-shoutzor-dev
+      - 
+        name: Run tests
+        run: |
+          cp .env.template .env
+          php artisan test
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - 
+        name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
