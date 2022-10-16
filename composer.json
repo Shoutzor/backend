@@ -64,16 +64,12 @@
             "@composer install --optimize-autoloader --no-dev",
             "@php artisan key:generate",
             "@php artisan shoutzor:install --useenv",
-            "npm ci",
-            "npm run production",
             "@composer optimize-shoutzor"
         ],
         "install-shoutzor-dev": [
             "@composer install --optimize-autoloader",
             "@php artisan key:generate",
             "@php artisan shoutzor:install --useenv --dev",
-            "npm ci",
-            "npm run dev",
             "@composer optimize-shoutzor"
         ],
         "optimize-shoutzor": [
