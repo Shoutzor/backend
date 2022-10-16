@@ -21,11 +21,11 @@ jobs:
         with:
           file: './backend.Dockerfile'
           push: true
-          tags: xorinzor/Shoutz0r-backend:latest
+          tags: xorinzor/shoutz0r-backend:latest
       -
         name: Build and push Worker
         uses: docker/build-push-action@v3
         with:
           file: './worker.Dockerfile'
           push: true
-          tags: xorinzor/Shoutz0r-worker:latest
+          tags: xorinzor/shoutz0r-worker:latest

@@ -23,7 +23,7 @@ services:
     build:
       context: .
       dockerfile: ./backend.Dockerfile
-    image: xorinzor/Shoutz0r-backend
+    image: xorinzor/shoutz0r-backend
     networks:
       - shoutzor-backend
 
@@ -31,7 +31,7 @@ services:
     build:
       context: .
       dockerfile: ./worker.Dockerfile
-    image: xorinzor/Shoutzor-worker
+    image: xorinzor/shoutz0r-worker
     depends_on:
       - mysql
     networks:
