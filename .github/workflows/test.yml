@@ -18,7 +18,7 @@ jobs:
         run: cp .env.template .env
       - 
         name: Start required containers for testing
-        run: docker compose -f docker-compose-testing.yml up
+        run: docker compose -f docker-compose-testing.yml up -d
       - 
         name: Run composer install and install shoutzor
         uses: php-actions/composer@v6
@@ -27,7 +27,7 @@ jobs:
       - 
         name: Run tests
         run: php artisan test
-        
+
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
