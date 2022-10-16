@@ -43,7 +43,6 @@ services:
 
 volumes:
   tmp:
-    tmpfs: true
 
 networks:
   shoutzor-backend: { }
