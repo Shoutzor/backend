@@ -18,16 +18,16 @@ jobs:
         run: docker compose -f docker-compose-testing.yml up --detach mysql redis
       -
         name: Install shoutzor
-        run: docker compose run backend composer install-shoutzor-dev
+        run: docker compose -f docker-compose-testing.yml run backend composer install-shoutzor-dev
       -
         name: Copy dotenv file for testing
         run: cp .env .env.testing
       -
         name: Rebuild config cache
-        run: docker compose run backend php /code/artisan config:cache
+        run: docker compose -f docker-compose-testing.yml run backend php /code/artisan config:cache
       - 
         name: Run PHPUnit
-        run: docker compose run backend php /code/artisan test
+        run: docker compose -f docker-compose-testing.yml run backend php /code/artisan test
 
   sonarcloud:
     name: SonarCloud
