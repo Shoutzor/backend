@@ -24,6 +24,8 @@ services:
       context: .
       dockerfile: ./backend.Dockerfile
     image: xorinzor/shoutz0r-backend
+    volumes:
+      - tmp:/code
     networks:
       - shoutzor-backend
 
@@ -32,10 +34,16 @@ services:
       context: .
       dockerfile: ./worker.Dockerfile
     image: xorinzor/shoutz0r-worker
+    volumes:
+      - tmp:/code
     depends_on:
       - mysql
     networks:
       - shoutzor-backend
+
+volumes:
+  tmp:
+    tmpfs: true
 
 networks:
   shoutzor-backend: { }
