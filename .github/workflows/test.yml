@@ -13,6 +13,9 @@ jobs:
       - 
         name: Setup PHP
         uses: shivammathur/setup-php@2.21.2
+      -
+        name: Copy dotenv file
+        run: cp .env.template .env
       - 
         name: Start required containers for testing
         run: docker compose -f docker-compose-testing.yml up
@@ -23,9 +26,8 @@ jobs:
           command: install-shoutzor-dev
       - 
         name: Run tests
-        run: |
-          cp .env.template .env
-          php artisan test
+        run: php artisan test
+        
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
