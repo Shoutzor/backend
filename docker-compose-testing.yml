@@ -2,19 +2,40 @@ version: '3.8'
 services:
   mysql:
     image: 'mysql:8'
-    ports:
-      - "3306:3306"
     environment:
       - MYSQL_DATABASE=${DB_DATABASE:?MYSQL_DB_NOT_PROVIDED}
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:?MYSQL_PASSWORD_NOT_PROVIDED}
+    networks:
+      - shoutzor-backend
 
   redis:
     image: 'bitnami/redis:7.0'
-    ports:
-      - "6379:6379"
     environment:
       - REDIS_PASSWORD
       - REDIS_TLS_ENABLED
       - REDIS_TLS_CERT_FILE
       - REDIS_TLS_KEY_FILE
       - REDIS_TLS_CA_FILE
+    networks:
+      - shoutzor-backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend.Dockerfile
+    image: xorinzor/Shoutz0r-backend
+    networks:
+      - shoutzor-backend
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./worker.Dockerfile
+    image: xorinzor/Shoutzor-worker
+    depends_on:
+      - mysql
+    networks:
+      - shoutzor-backend
+
+networks:
+  shoutzor-backend: { }

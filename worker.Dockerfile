@@ -6,7 +6,7 @@ WORKDIR /code
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 # Add our PHP configuration
-COPY ./php.custom.conf "$PHP_INI_DIR/conf.d/php.custom.conf"
+COPY ./php.custom.conf "/usr/local/etc/php-fpm.d/zzz-shoutzor.conf"
 
 # Add PHP Project files
 COPY ./ .
