@@ -15,7 +15,8 @@ COPY ./ .
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 # Install Redis driver
-RUN pecl install -o -f redis \
+RUN apk add --no-cache pcre-dev $PHPIZE_DEPS \
+    && pecl install -o -f redis \
     && rm -rf /tmp/pear \
     && docker-php-ext-enable redis
 
