@@ -12,13 +12,13 @@ jobs:
         uses: actions/checkout@v3
       - 
         name: Start required containers for testing
-        run: docker compose -f docker-compose-testing.yml up --detach mysql redis
+        run: docker compose -f docker-compose.testing.yml up --detach mysql redis
       -
         name: Install shoutzor
-        run: docker compose -f docker-compose-testing.yml run backend composer install-shoutzor-dev
+        run: docker compose -f docker-compose.testing.yml run backend composer install-shoutzor-dev
       - 
         name: Run PHPUnit
-        run: docker compose -f docker-compose-testing.yml run backend php artisan test
+        run: docker compose -f docker-compose.testing.yml run backend php artisan test
 
   sonarcloud:
     name: SonarCloud
