@@ -1,15 +1,8 @@
-/node_modules
-/public/hot
-/public/storage
-/public/css
-/public/images
-/public/js
-/public/fonts
-/storage/*.key
 /vendor
+/storage/*.key
 .env
 .env.*
-!.env.template
+!.env.default
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -17,8 +10,6 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
-/storybook-static
 schema-directives.graphql
 programmatic-types.graphql
 _lighthouse_ide_helper.php
-componser.phar

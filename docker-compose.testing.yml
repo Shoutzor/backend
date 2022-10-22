@@ -1,0 +1,83 @@
+version: '3.8'
+services:
+  mysql:
+    image: 'mysql:8'
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=shoutzor
+      - MYSQL_ROOT_PASSWORD=Shoutz0r!
+    networks:
+      - shoutzor-backend
+
+  redis:
+    image: 'bitnami/redis:7.0'
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=your-redis-passw0rd!
+      - REDIS_TLS_ENABLED=false
+    networks:
+      - shoutzor-backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend.Dockerfile
+    image: xorinzor/shoutz0r-backend
+    ports:
+      - "80:80"
+    environment:
+      - SWOOLE_HTTP_HOST=0.0.0.0
+      - SWOOLE_HTTP_PORT=80
+      - APP_ENV
+      - APP_KEY
+      - APP_DEBUG
+      - APP_SCHEME=http
+      - APP_DOMAIN=shoutzor.local
+      - DB_USERNAME=root
+      - DB_PASSWORD=Shoutz0r!
+      - LIGHTHOUSE_SUBSCRIPTION_STORAGE=redis
+      - PUSHER_APP_SECRET=your-app-secret
+      - PUSHER_HOST=echo
+      - CACHE_DRIVER=redis
+      - REDIS_PASSWORD=your-redis-passw0rd!
+    volumes:
+      - tmp:/code
+    networks:
+      - shoutzor-backend
+    depends_on:
+      - redis
+      - mysql
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./worker.Dockerfile
+    image: xorinzor/shoutz0r-worker
+    environment:
+      - APP_ENV
+      - APP_KEY
+      - APP_DEBUG
+      - APP_SCHEME=http
+      - APP_DOMAIN=shoutzor.local
+      - DB_USERNAME=root
+      - DB_PASSWORD=Shoutz0r!
+      - LIGHTHOUSE_SUBSCRIPTION_STORAGE=redis
+      - PUSHER_APP_SECRET=your-app-secret
+      - PUSHER_HOST=echo
+      - CACHE_DRIVER=redis
+      - REDIS_PASSWORD=your-redis-passw0rd!
+    volumes:
+      - tmp:/code
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - shoutzor-backend
+    
+volumes:
+  tmp:
+
+networks:
+  shoutzor-backend: { }

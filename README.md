@@ -7,8 +7,9 @@
 
 1. [Introduction](#introduction)
 2. [Composer commands](#composer-commands)
-3. [Kindly Supported by](#kindly-supported-by)
-4. [Sponsor this project](#sponsor-this-project)
+3. [Building & Using the docker container](#building--using-the-docker-container)
+4. [Kindly Supported by](#kindly-supported-by)
+5. [Sponsor this project](#sponsor-this-project)
 
 ## Introduction
 
@@ -27,6 +28,19 @@ Documentation has yet to be written. Feel free to ask any questions in the `disc
 | `composer install-shoutzor-dev` | Installs shoutzor for development environments (adds mock data)       |
 | `composer add-mock-data`        | Generates and adds mock data to the database using `DevelopmentSeeder` |
 
+## Building & Using the docker container
+1. run `composer install` on your local machine
+    - For production use `composer install --no-dev`
+2. Now you can build & run the dockerfile
+    - It's recommended to perform all actions using `docker-compose`. \
+    You can execute commands via `docker-compose -f docker-compose.testing.yml run backend your_command_here` where `your_command_here` will be executed on the backend container.\
+    For more information you can check the [docker-compose documentation](https://docs.docker.com/compose/).
+3. Make sure to configure the environment variables before running the containers
+    - No `APP_KEY` yet? Run `php artisan key:generate --show` and use it's value
+    - Multiple backend containers? Make sure you configure the same `APP_KEY` for them
+4. Haven't installed shoutzor yet? 
+    - Run `composer install-shoutzor-dev` on the `backend` container.
+    - For production run `composer install-shoutzor-dev` instead.
 
 ## Kindly supported by
 

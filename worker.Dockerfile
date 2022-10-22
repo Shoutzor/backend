@@ -22,3 +22,6 @@ RUN apk add --no-cache pcre-dev $PHPIZE_DEPS \
 
 # Install PDO MySQL driver
 RUN docker-php-ext-install pdo pdo_mysql
+
+# Start the Queue Worker
+CMD ["php", "artisan", "queue:work", "--queue=uploads"]

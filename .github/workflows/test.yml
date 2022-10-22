@@ -10,24 +10,15 @@ jobs:
       - 
         name: Checkout
         uses: actions/checkout@v3
-      -
-        name: Copy dotenv file
-        run: cp .env.template .env
       - 
         name: Start required containers for testing
         run: docker compose -f docker-compose-testing.yml up --detach mysql redis
       -
         name: Install shoutzor
         run: docker compose -f docker-compose-testing.yml run backend composer install-shoutzor-dev
-      -
-        name: Copy dotenv file for testing
-        run: cp .env .env.testing
-      -
-        name: Rebuild config cache
-        run: docker compose -f docker-compose-testing.yml run backend php /code/artisan config:cache
       - 
         name: Run PHPUnit
-        run: docker compose -f docker-compose-testing.yml run backend php /code/artisan test
+        run: docker compose -f docker-compose-testing.yml run backend php artisan test
 
   sonarcloud:
     name: SonarCloud

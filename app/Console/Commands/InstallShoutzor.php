@@ -2,12 +2,13 @@
 
 namespace App\Console\Commands;
 
+use \Exception;
 use App\Exceptions\ShoutzorInstallerException;
 use App\Exceptions\FormValidationException;
 use App\HealthCheck\HealthCheckManager;
 use App\Installer\Installer;
-use \Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * An Artisan command allowing for command-line installation of Shoutzor.
@@ -21,7 +22,7 @@ class InstallShoutzor extends Command
      * --dev indicates that this is a development environment and will populate the database with dummy data
      * @var string
      */
-    protected $signature = 'shoutzor:install {--useenv} {--dev}';
+    protected $signature = 'shoutzor:install {--dev}';
 
     /**
      * The console command description.
@@ -59,14 +60,12 @@ class InstallShoutzor extends Command
 
         try {
             // Running the installer while shoutzor is already installed will break & reset things. Bad idea.
-            if (config('shoutzor.installed')) {
+            if (Cache::get('shoutzor.installed', false) === true) {
                 throw new ShoutzorInstallerException('Shoutz0r is already installed, aborting.');
             }
 
-            $useEnv = $this->option('useenv');
-
             $this->checkHealth();
-            $this->performInstall($useEnv, $this->option('dev'));
+            $this->performInstall($this->option('dev'));
         } catch (Exception $e) {
             $this->error($e->getMessage());
             return 1;
@@ -128,22 +127,13 @@ class InstallShoutzor extends Command
      * Performs the actual installation of Shoutzor
      * @throws Exception
      */
-    private function performInstall($useEnv, $isDev)
+    private function performInstall($isDev)
     {
         $this->info('Starting installation');
+        $this->loadEnvFile();
 
-        // Check if the useEnv option is in-use
-        if ($useEnv) {
-            // Inform the user about the --useenv option being used.
-            $this->info('--useenv is used, existing .env file will be used.');
-            $this->loadEnvFile();
-        }
-
-        //Fetch the valid DB settings
-        $dbFields = Installer::$dbFields;
-
-        // Configure the database connection
-        $this->configureDbConnection($useEnv, $dbFields);
+        // Test the database connection
+        $this->testDbLogin();
 
         // Retrieve the installation steps from the installer
         $installationSteps = Installer::$installSteps;
@@ -185,74 +175,13 @@ class InstallShoutzor extends Command
         }
     }
 
-    private function configureDbConnection($useEnv, $dbFields) {
-        // if --useenv is in-use, fetch the values from the .env file, otherwise, ask the user.
-        if ($useEnv) {
-            $this->info("Configuring SQL settings using the config values in the environment file");
-
-            $dbtype = config('database.default');
-            $host = config($dbFields[$dbtype]['host']['dotconfig']);
-            $port = config($dbFields[$dbtype]['port']['dotconfig']);
-            $database = config($dbFields[$dbtype]['database']['dotconfig']);
-            $username = config($dbFields[$dbtype]['username']['dotconfig']);
-            $password = config($dbFields[$dbtype]['password']['dotconfig']);
-
-            $this->testDbHostConnection($host, $port);
-            $this->testDbLogin($dbtype, $host, $port, $database, $username, $password);
-        }
-        else {
-            $this->info("Configuring SQL settings");
-
-            // Create a loop, this way the user can keep trying if the configuration fails.
-            while (true) {
-                // Ask the user what database type we should be configuring
-                $dbtype = $this->choice('Enter the sql type', array_keys($dbFields), 0);
-                $host = $this->anticipate('Enter the hostname of the sql server [ie: localhost or 127.0.0.1]', ['localhost', '127.0.0.1']);
-                $port = $this->anticipate('Enter the port of the sql server [ie: ' . $dbFields[$dbtype]['port']['default'] . ']', [$dbFields[$dbtype]['port']['default']]);
-
-                if($this->testDbHostConnection($host, $port)) {
-                    break;
-                }
-
-                $this->info("Please try again, or press CTRL + C to exit");
-            }
-
-            while(true) {
-                $database = $this->anticipate('Enter the name of the database [ie: shoutzor]', ['shoutzor']);
-                $username = $this->anticipate('Enter the username of the SQL account [ie: shoutzor]', ['shoutzor']);
-                $password = $this->secret('Enter the password of the SQL account');
-
-                if($this->testDbLogin($dbtype, $host, $port, $database, $username, $password)) {
-                    break;
-                }
-
-                $this->info("Please try again, or press CTRL + C to exit");
-            }
-        }
-    }
-
-    private function testDbHostConnection($host, $port)
+    private function testDbLogin()
     {
-        $this->line("Testing connection to $host:$port...");
+        $step = $this->installer->testSqlConnection();
 
-        if (!$socket = @fsockopen($host, $port, $errno, $errstr, 3)) {
-            $this->error("Could not connect to $host:$port; please ensure the correct hostname/IP address & port are used, and not being blocked by a firewall.");
-            fclose($socket);
-            return false;
-        } else {
-            $this->info("Connection success!");
-            fclose($socket);
-            return true;
-        }
-    }
-
-    private function testDbLogin($dbtype, $host, $port, $database, $username, $password)
-    {
-        $step = $this->installer->configureSql($dbtype, $host, $port, $database, $username, $password);
-
-        //Check if the SQL configuration succeeded, if so: break the loop
+        //Check if the SQL configuration is valid
         if ($step->succeeded()) {
-            $this->info("SQL Configuration succeeded");
+            $this->info("SQL Login success!");
             return true;
         } else {
             // Check if it's a formValidation exception, or regular exception
@@ -266,7 +195,7 @@ class InstallShoutzor extends Command
                 }
             } else {
                 // Configuration failed, display error and restart the loop
-                $this->error("SQL Configuration failed, reason: " . $step->getOutput());
+                $this->error("SQL Login failed, reason: " . $step->getOutput());
             }
 
             return false;

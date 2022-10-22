@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Shoutz0r'),
+    'name' => 'Shoutz0r',
 
     /*
     |--------------------------------------------------------------------------
@@ -202,6 +202,11 @@ return [
          */
         \Nuwave\Lighthouse\Subscriptions\SubscriptionServiceProvider::class,
         \Nuwave\Lighthouse\WhereConditions\WhereConditionsServiceProvider::class,
+
+        /*
+         * Swoole Service provider
+         */
+        SwooleTW\Http\LaravelServiceProvider::class,
     ],
 
     /*
