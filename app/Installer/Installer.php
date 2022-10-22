@@ -140,6 +140,8 @@ class Installer
 
             # Generate view cache
             Artisan::call('view:cache');
+
+            Artisan::call('optimize');
         } catch (Exception $e) {
             $success = false;
             $exception = $e;
