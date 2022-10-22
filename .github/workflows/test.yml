@@ -10,6 +10,12 @@ jobs:
       - 
         name: Checkout
         uses: actions/checkout@v3
+      -
+        name: Install composer packages
+        run: composer install --no-dev
+      -
+        name: Set APP_KEY environment variable
+        run: echo "APP_KEY=base64:3ckQfDEp2D/Gdu8CCBv1s/VjJHZs90lZV/+oyh4xWfA=" >> $GITHUB_ENV
       - 
         name: Start required containers for testing
         run: docker compose -f docker-compose.testing.yml up --detach mysql redis

@@ -19,14 +19,6 @@ class Installer
      */
     public static array $installSteps = [
         [
-            'name' => 'Generate App Key',
-            'description' => 'Generates an APP_KEY in the env file',
-            'slug' => 'generate-app-key',
-            'running' => false,
-            'status' => -1,
-            'method' => 'generateAppKey'
-        ],
-        [
             'name' => 'Database migrations',
             'description' => 'Creates tables and indexes in the database',
             'slug' => 'migrate-database',
@@ -43,12 +35,12 @@ class Installer
             'method' => 'seedDatabase'
         ],
         [
-            'name' => 'Generate cache',
-            'description' => 'Generate cache to speed up requests',
-            'slug' => 'generate-cache',
+            'name' => 'Optimize install',
+            'description' => 'Optimizes the app cache',
+            'slug' => 'optimize-install',
             'running' => false,
             'status' => -1,
-            'method' => 'generateCache'
+            'method' => 'optimizeInstall'
         ],
         [
             'name' => 'Finishing up',
@@ -88,26 +80,6 @@ class Installer
         } catch (Exception $e) {
             $exception = $e;
             $success = false;
-        }
-
-        return new InstallStepResult($success, $success ? Artisan::output() : $exception?->getMessage() ?? '', $exception);
-    }
-
-    /**
-     * Executes the artisan key:generate command to generate an APP_KEY
-     * @return InstallStepResult
-     */
-    public function generateAppKey(): InstallStepResult
-    {
-        $success = true;
-        $exception = null;
-
-        try {
-            # Execute the database migrations
-            Artisan::call('key:generate --force');
-        } catch (Exception $e) {
-            $success = false;
-            $exception = $e;
         }
 
         return new InstallStepResult($success, $success ? Artisan::output() : $exception?->getMessage() ?? '', $exception);
@@ -157,7 +129,7 @@ class Installer
      * Generates laravel cache for things like Routes & Views to speed up requests
      * @return InstallStepResult
      */
-    public function generateCache(): InstallStepResult
+    public function optimizeInstall(): InstallStepResult
     {
         $success = true;
         $exception = null;
@@ -188,9 +160,6 @@ class Installer
         try {
             # Set installed to true
             Cache::put('shoutzor.installed', true);
-
-            # Rebuild the config cache
-            Artisan::call('config:cache');
         } catch (Exception $e) {
             $success = false;
             $exception = $e;
