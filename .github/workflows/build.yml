@@ -25,6 +25,7 @@ jobs:
         name: Build and push Backend
         uses: docker/build-push-action@v3
         with:
+          context: .
           file: './backend.Dockerfile'
           push: true
           tags: xorinzor/shoutz0r-backend:latest
@@ -32,6 +33,7 @@ jobs:
         name: Build and push Worker
         uses: docker/build-push-action@v3
         with:
+          context: .
           file: './worker.Dockerfile'
           push: true
           tags: xorinzor/shoutz0r-worker:latest
