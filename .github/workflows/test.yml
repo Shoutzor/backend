@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v3
       -
         name: Install composer packages
-        run: composer install --no-dev --prefer-dist --optimize-autoloader
+        run: composer install --prefer-dist --optimize-autoloader
       -
         name: Set APP_KEY environment variable
         run: echo "APP_KEY=base64:3ckQfDEp2D/Gdu8CCBv1s/VjJHZs90lZV/+oyh4xWfA=" >> $GITHUB_ENV
