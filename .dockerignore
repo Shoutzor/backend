@@ -12,7 +12,6 @@ storage/framework/views/*
 bootstrap/cache/*.php
 
 **.git
-.idea
 **.gitignore
 **.gitattributes
 **.sass-cache
