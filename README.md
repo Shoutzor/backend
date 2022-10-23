@@ -40,7 +40,7 @@ Documentation has yet to be written. Feel free to ask any questions in the `disc
     - Multiple backend containers? Make sure you configure the same `APP_KEY` for them
 4. Haven't installed shoutzor yet? 
     - Run `composer install-shoutzor-dev` on the `backend` container.
-    - For production run `composer install-shoutzor-dev` instead.
+    - For production run `composer install-shoutzor` instead.
 
 ## Kindly supported by
 
