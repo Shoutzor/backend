@@ -58,13 +58,10 @@
             "@php artisan key:generate --ansi"
         ],
         "install-shoutzor": [
-            "@composer install --optimize-autoloader --no-dev",
-            "@php artisan key:generate",
             "@php artisan shoutzor:install",
             "@composer optimize-shoutzor"
         ],
         "install-shoutzor-dev": [
-            "@composer install --optimize-autoloader",
             "@php artisan key:generate",
             "@php artisan shoutzor:install --dev",
             "@composer optimize-shoutzor"

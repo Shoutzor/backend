@@ -12,11 +12,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 # Switch to our working directory
 WORKDIR /code
 
-# Add PHP Project files
-COPY ./ .
-
 # Copy the default dotEnv file
 COPY ./.env.default .env
+
+# Copy PHP Project files
+COPY ./ .
 
 # Start Swoole HTTP Server
 CMD ["php", "artisan", "swoole:http", "start"]

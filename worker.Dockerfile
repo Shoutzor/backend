@@ -18,7 +18,10 @@ COPY ./php.custom.conf "/usr/local/etc/php-fpm.d/zzz-shoutzor.conf"
 # Switch to our working directory
 WORKDIR /code
 
-# Add PHP Project files
+# Copy the default dotEnv file
+COPY ./.env.default .env
+
+# Copy PHP Project files
 COPY ./ .
 
 # Start the Queue Worker
