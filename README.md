@@ -24,7 +24,10 @@ Documentation has yet to be written. Feel free to ask any questions in the `disc
 ## Development
 
 For local development you have 2 options (that I know of):
-- Install PHP locally
+- Install PHP (8.1) locally
+    - With the MySQL driver
+    - With the Redis driver
+    - With the [OpenSwoole extension](https://openswoole.com/docs/get-started/installation)
 - Mount code directory to the backend container
 
 The method I will describe below assumes you have PHP installed locally.

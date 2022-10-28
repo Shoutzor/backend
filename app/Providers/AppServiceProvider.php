@@ -70,7 +70,7 @@ class AppServiceProvider extends ServiceProvider
         $this->healthCheckManager->registerHealthcheck(
             new EnsureFileHealthCheck(
                 [
-                    base_path('.env') => base_path('.env.template')
+                    base_path('.env') => base_path('.env.default')
                 ]
             ),
             true
