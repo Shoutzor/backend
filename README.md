@@ -6,10 +6,11 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Shoutz0r_backend&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Shoutz0r_backend)
 
 1. [Introduction](#introduction)
-2. [Composer commands](#composer-commands)
-3. [Building & Using the docker container](#building--using-the-docker-container)
-4. [Kindly Supported by](#kindly-supported-by)
-5. [Sponsor this project](#sponsor-this-project)
+2. [Development](#development)
+3. [Composer commands](#composer-commands)
+4. [Building & Using the docker container](#building--using-the-docker-container)
+5. [Kindly Supported by](#kindly-supported-by)
+6. [Sponsor this project](#sponsor-this-project)
 
 ## Introduction
 
@@ -19,6 +20,22 @@ Built using Laravel, GraphQL (Lighthouse) & Apollo.
 
 API Docs can be found over at [shoutzor.com](https://shoutzor.com/phpdocs/app/master/). \
 Documentation has yet to be written. Feel free to ask any questions in the `discussions`.
+
+## Development
+
+For local development you have 2 options (that I know of):
+- Install PHP locally
+- Mount code directory to the backend container
+
+The method I will describe below assumes you have PHP installed locally.
+
+1. Open the terminal and navigate to the root of the backend project
+2. Run `docker-compose -f docker-compose.testing.yml up mysql redis` 
+    - This will start the `mysql` and `redis` containers that are required for the backend to work; if you need any other containers to run, just add them to the list after `up`
+3. Open another terminal and navigate to the root of the backend project
+4. Run `composer install` to install all dependencies of the `backend`. If you already did this before, you won't need to do this again.
+5. Run `composer install-shoutzor-dev` to install shoutzor
+6. You can now run `php artisan swoole:http start` to start the backend. If it gives you a `permission denied` error try running it with `sudo`.
 
 ## Composer commands:
 
