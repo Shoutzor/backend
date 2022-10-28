@@ -35,10 +35,11 @@ The method I will describe below assumes you have PHP installed locally.
 1. In the root of the backend project, copy `.env.default` to `.env` and make sure to edit the following variables:
     - `LIGHTHOUSE_SUBSCRIPTION_STORAGE` Set this to `redis`
     - `CACHE_DRIVER` Set this to `redis`
-    - `DB_HOST`: Set this to `127.0.0.1` (assuming you will start the `mysql` container in step 3. Else point this to your mysql server)
-    - `DB_PASSWORD`: Optional. If you define a custom password here both the `backend` and `mysql` containers will use this instead
+    - `DB_HOST`: Set this to `127.0.0.1`
+    - `DB_PASSWORD`: Optional. If you define a custom password here both the `backend` and `mysql` containers will use this password instead
     - `PUSHER_HOST` If you will be doing any laravel echo development, point this to the `echo` server
     - `PUSHER_APP_SECRET` If you will be doing any laravel echo development, define your `echo` server password here
+    
 2. Open the terminal and navigate to the root of the backend project
 3. Run `docker-compose -f docker-compose.testing.yml up mysql redis` 
     - This will start the `mysql` and `redis` containers that are required for the backend to work; if you need any other containers to run, just add them to the list after `up`
