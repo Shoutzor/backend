@@ -17,8 +17,8 @@ services:
     ports:
       - "6379:6379"
     environment:
-      - REDIS_PASSWORD=R3disPassw0rd!
-      - REDIS_TLS_ENABLED=false
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-R3disPassw0rd!}
+      - REDIS_TLS_ENABLED=${REDIS_TLS_ENABLED:-false}
     networks:
       - shoutzor-backend
 

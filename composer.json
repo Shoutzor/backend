@@ -61,8 +61,16 @@
             "@php artisan shoutzor:install",
             "@composer optimize-shoutzor"
         ],
+        "fresh-install-shoutzor": [
+            "@php artisan shoutzor:install --fresh",
+            "@composer optimize-shoutzor"
+        ],
         "install-shoutzor-dev": [
             "@php artisan shoutzor:install --dev",
+            "@composer optimize-shoutzor"
+        ],
+        "fresh-install-shoutzor-dev": [
+            "@php artisan shoutzor:install --dev --fresh",
             "@composer optimize-shoutzor"
         ],
         "optimize-shoutzor": [

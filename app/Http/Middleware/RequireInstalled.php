@@ -10,7 +10,8 @@ class RequireInstalled
 {
     public function handle($request, Closure $next)
     {
-        if(Cache::get('shoutzor.installed', false) === true) {
+        // Check if Shoutz0r is installed
+        if(Installer::isInstalled()) {
             Response::allow();
             return $next($request);
         }

@@ -8,6 +8,7 @@ use App\Exceptions\FormValidationException;
 use App\HealthCheck\HealthCheckManager;
 use App\Installer\Installer;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -18,11 +19,11 @@ class InstallShoutzor extends Command
 {
     /**
      * The name and signature of the console command.
-     * --useenv indicates that the existing .env file should be used during installation.
      * --dev indicates that this is a development environment and will populate the database with dummy data
+     * --fresh will DROP ALL TABLES(!) and then execute the migrations
      * @var string
      */
-    protected $signature = 'shoutzor:install {--dev}';
+    protected $signature = 'shoutzor:install {--dev} {--fresh}';
 
     /**
      * The console command description.
@@ -45,8 +46,6 @@ class InstallShoutzor extends Command
     public function __construct()
     {
         parent::__construct();
-
-        $this->installer = new Installer();
     }
 
     /**
@@ -59,12 +58,20 @@ class InstallShoutzor extends Command
         $this->line('Shoutz0r CLI Installer');
 
         try {
+            $this->installer = new Installer($this->option('dev'), $this->option('fresh'));
+            
             // Running the installer while shoutzor is already installed will break & reset things. Bad idea.
-            if (Cache::get('shoutzor.installed', false) === true) {
+            if (Installer::isInstalled()) {
                 throw new ShoutzorInstallerException('Shoutz0r is already installed, aborting.');
             }
 
+            # Clear any cache config to make sure we're loading the latest settings
+            Artisan::call('config:cache');
+
+            # Perform a health-check to ensure all prerequisites are met
             $this->checkHealth();
+
+            # Start the installation
             $this->performInstall($this->option('dev'));
         } catch (Exception $e) {
             $this->error($e->getMessage());

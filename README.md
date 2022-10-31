@@ -33,6 +33,7 @@ For local development you have 2 options (that I know of):
 The method I will describe below assumes you have PHP installed locally.
 
 1. In the root of the backend project, copy `.env.default` to `.env` and make sure to edit the following variables:
+    - `APP_KEY`: Run `php artisan key:generate --show` and use it's value
     - `LIGHTHOUSE_SUBSCRIPTION_STORAGE` Set this to `redis`
     - `CACHE_DRIVER` Set this to `redis`
     - `DB_HOST`: Set this to `127.0.0.1`
@@ -44,8 +45,10 @@ The method I will describe below assumes you have PHP installed locally.
 3. Run `docker-compose -f docker-compose.testing.yml up mysql redis` 
     - This will start the `mysql` and `redis` containers that are required for the backend to work; if you need any other containers to run, just add them to the list after `up`
 4. Open another terminal and navigate to the root of the backend project
-5. Run `composer install` to install all dependencies of the `backend`. If you already did this before, you won't need to do this again.
+5. Run `composer install` to install all dependencies of the `backend`. 
+    - If you already did this before, you can skip this step.
 6. Run `composer install-shoutzor-dev` to install shoutzor
+    - If you want to reinstall shoutzor, you can run `composer fresh-install-shoutzor-dev` instead (WARNING: This will drop ALL TABLES!)
 7. You can now run `php artisan swoole:http start` to start the backend. If it gives you a `permission denied` error try running it with `sudo`.
 
 ## Composer commands:

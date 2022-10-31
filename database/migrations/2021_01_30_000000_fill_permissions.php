@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Exceptions\ConfigPropertyMissingException;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Exceptions\PermissionAlreadyExists;
@@ -35,9 +36,7 @@ class FillPermissions extends Migration
         );
 
         $this->createPermission('website.search', '(dis)allows searching', [$guest, $user, $admin]);
-
         $this->createPermission('website.upload', '(dis)allows uploading media', [$user, $admin]);
-
         $this->createPermission('website.request', '(dis)allows requests', [$user, $admin]);
 
         $this->createPermission('admin.access', '(dis)allows accessing the admin panel and sub-pages', [$admin]);
@@ -50,6 +49,7 @@ class FillPermissions extends Migration
         $this->createPermission('admin.role.edit', '(dis)allows listing shoutzor roles', [$admin]);
         $this->createPermission('admin.role.delete', '(dis)allows listing shoutzor roles', [$admin]);
 
+        // TODO replace with DB statements
         $user = User::where('username', 'admin')->first();
         $user->assignRole('user');
         $user->assignRole('admin');
@@ -62,13 +62,21 @@ class FillPermissions extends Migration
      */
     private function createRole(string $name, string $description, bool $protected = false)
     {
-        try {
-            return Role::create(['name' => $name, 'description' => $description, 'protected' => $protected]);
-        } catch (RoleAlreadyExists $e) {
-            //Ignore
+        $tableNames = config('permission.table_names');
+
+        if (empty($tableNames)) {
+            throw new ConfigPropertyMissingException(
+                'Error: config/permission.php not found and defaults could not be merged. Please publish the package configuration before proceeding, or drop the tables manually.'
+            );
         }
 
-        return Role::findByName($name);
+        return DB::table($tableNames['roles'])->insertGetId([
+            'name' => $name, 
+            'description' => $description,
+            'guard_name' => 'api',
+            'protected' => $protected,
+            'created_at' => now()
+        ]);
     }
 
     /**
@@ -79,16 +87,28 @@ class FillPermissions extends Migration
      */
     private function createPermission(string $name, string $description, array $roles = [])
     {
-        try {
-            $perm = Permission::create(['name' => $name, 'description' => $description]);
+        $tableNames = config('permission.table_names');
 
-            //Assign the permission for the provided roles
-            foreach ($roles as $role) {
-                $role->givePermissionTo($perm);
-            }
-        } catch (PermissionAlreadyExists $e) {
-            //Ignore
+        if (empty($tableNames)) {
+            throw new ConfigPropertyMissingException(
+                'Error: config/permission.php not found and defaults could not be merged. Please publish the package configuration before proceeding, or drop the tables manually.'
+            );
         }
+
+        $permissionId = DB::table($tableNames['permissions'])->insertGetId([
+            'name' => $name, 
+            'description' => $description,
+            'guard_name' => 'api',
+            'created_at' => now()
+        ]);
+
+        //Assign the permission for the provided roles
+        DB::table('role_has_permissions')->insert(
+            collect($roles)->map(fn ($roleId) => [
+                'role_id' => $roleId,
+                'permission_id' => $permissionId
+            ])->toArray()
+        );
     }
 
     /**
@@ -100,7 +120,14 @@ class FillPermissions extends Migration
     {
         $tableNames = config('permission.table_names');
 
-        DB::table($tableNames['permissions'])->delete();
-        DB::table($tableNames['roles'])->delete();
+        if (empty($tableNames)) {
+            throw new ConfigPropertyMissingException(
+                'Error: config/permission.php not found and defaults could not be merged. Please publish the package configuration before proceeding, or drop the tables manually.'
+            );
+        }
+
+        DB::table($tableNames['role_has_permissions'])->truncate();
+        DB::table($tableNames['roles'])->truncate();
+        DB::table($tableNames['permissions'])->truncate();
     }
 }

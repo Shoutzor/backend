@@ -6,11 +6,13 @@ use \Exception;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class Installer
 {
+    private $isDev = false;
+    private $isFresh = false;
+
+    const CACHE_INSTALLED_KEY = 'shoutzor.installed';
 
     /**
      * Contains the installer steps in the correct order of execution
@@ -21,37 +23,69 @@ class Installer
         [
             'name' => 'Database migrations',
             'description' => 'Creates tables and indexes in the database',
-            'slug' => 'migrate-database',
-            'running' => false,
-            'status' => -1,
             'method' => 'migrateDatabase'
         ],
         [
             'name' => 'Database seeding',
             'description' => 'Adds initial data to the database',
-            'slug' => 'seed-database',
-            'running' => false,
-            'status' => -1,
             'method' => 'seedDatabase'
         ],
         [
             'name' => 'Optimize install',
             'description' => 'Optimizes the app cache',
-            'slug' => 'optimize-install',
-            'running' => false,
-            'status' => -1,
             'method' => 'optimizeInstall'
         ],
         [
             'name' => 'Finishing up',
             'description' => 'Finalize the installation',
-            'slug' => 'finish-install',
-            'running' => false,
-            'status' => -1,
             'method' => 'finishInstall'
         ]
     ];
 
+    /**
+     * Checks the cache if Shoutz0r has been installed or not
+     * If no key in the cache exists it will check the DB and
+     * set the Cache key accordingly.
+     * @return bool
+     */
+    public static function isInstalled() : bool {
+        try {
+            $cachedInstallStatus = Cache::get(self::CACHE_INSTALLED_KEY);
+
+            if($cachedInstallStatus === true) {
+                return true;
+            }
+
+            // If the cache key equals `null` the key does not exist
+            // Therefor we will have to check the current status from the database and
+            // set the cache key. We want to cache this to prevent having to query the DB
+            // on every request.
+            if($cachedInstallStatus === null) {
+                $check = self::checkIfInstalled();
+                Cache::put(self::CACHE_INSTALLED_KEY, $check);
+                return $check;
+            }
+        }
+        catch(Exception $e) {
+            // Log the error
+            Log::error("Failed to check if Shoutz0r is installed", $e);
+        }
+        finally {
+            return false;
+        }        
+    }
+
+    /**
+     * Checks if a migration exists in the database to determine if shoutzor is installed
+     */
+    public static function checkIfInstalled() : bool {
+        return DB::table('shoutzor')->where('key', 'version')->exists();
+    }
+
+    public function __construct($isDev = false, $isFresh = false) {
+        $this->isDev = $isDev;
+        $this->isFresh = $isFresh;
+    }
 
     /**
      * Tests & Configures the SQL settings to use
@@ -73,8 +107,6 @@ class Installer
             // Test the PDO connection
             DB::connection()->getPdo();
 
-            # Clear the cache config
-            Artisan::call('config:cache');
         } catch (\PDOException $e) {
             return new InstallStepResult(false, $e->getMessage(), $e);
         } catch (Exception $e) {
@@ -95,8 +127,14 @@ class Installer
         $exception = null;
 
         try {
-            # Execute the database migrations
-            Artisan::call('migrate --force');
+            // If isFresh equals true we want to perform a fresh migration
+            if($this->isFresh) {
+                Artisan::call('migrate:fresh --force');
+            }
+            # Else execute the database migrations regularly
+            else {
+                Artisan::call('migrate --force');
+            }
         } catch (Exception $e) {
             $success = false;
             $exception = $e;
@@ -160,8 +198,8 @@ class Installer
         $exception = null;
 
         try {
-            # Set installed to true
-            Cache::put('shoutzor.installed', true);
+            # Set installed to true in the cache
+            Cache::put(self::CACHE_INSTALLED_KEY, true);
         } catch (Exception $e) {
             $success = false;
             $exception = $e;
