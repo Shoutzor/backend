@@ -70,7 +70,11 @@ class Installer
         catch(Exception $e) {
             // Log the error
             Log::critical("Failed to check if Shoutz0r is installed", [
-                'exception' => json_encode($e)
+                'code'      => $e->getCode(),
+                'file'      => $e->getFile(),
+                'line'      => $e->getLine(),
+                'exception' => $e->getMessage(),
+                'trace'     => json_encode($e->getTrace())
             ]);
         }
 
