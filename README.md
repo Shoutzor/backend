@@ -34,8 +34,6 @@ The method I will describe below assumes you have PHP installed locally.
 
 1. In the root of the backend project, copy `.env.default` to `.env` and make sure to edit the following variables:
     - `APP_KEY`: Run `php artisan key:generate --show` and use it's value
-    - `LIGHTHOUSE_SUBSCRIPTION_STORAGE` Set this to `redis`
-    - `CACHE_DRIVER` Set this to `redis`
     - `DB_HOST`: Set this to `127.0.0.1`
     - `DB_PASSWORD`: Optional. If you define a custom password here both the `backend` and `mysql` containers will use this password instead
     - `PUSHER_HOST` If you will be doing any laravel echo development, point this to the `echo` server

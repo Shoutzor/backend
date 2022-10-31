@@ -38,7 +38,7 @@ services:
       - APP_DEBUG
       - APP_SCHEME
       - APP_DOMAIN
-      - DB_HOST
+      - DB_HOST=${DB_HOST:-mysql}
       - DB_PORT
       - DB_DATABASE
       - DB_USERNAME
@@ -70,7 +70,7 @@ services:
       - APP_DEBUG
       - APP_SCHEME
       - APP_DOMAIN
-      - DB_HOST
+      - DB_HOST=${DB_HOST:-mysql}
       - DB_PORT
       - DB_DATABASE
       - DB_USERNAME
