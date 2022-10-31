@@ -50,7 +50,7 @@ class Installer
      */
     public static function isInstalled() : bool {
         try {
-            $cachedInstallStatus = Cache::get(self::CACHE_INSTALLED_KEY);
+            $cachedInstallStatus = Cache::get(Installer::CACHE_INSTALLED_KEY);
 
             if($cachedInstallStatus === true) {
                 return true;
@@ -61,8 +61,8 @@ class Installer
             // set the cache key. We want to cache this to prevent having to query the DB
             // on every request.
             if($cachedInstallStatus === null) {
-                $check = self::checkIfInstalled();
-                Cache::put(self::CACHE_INSTALLED_KEY, $check);
+                $check = Installer::checkIfInstalled();
+                Cache::put(Installer::CACHE_INSTALLED_KEY, $check);
                 return $check;
             }
         }
@@ -70,9 +70,8 @@ class Installer
             // Log the error
             Log::error("Failed to check if Shoutz0r is installed", $e);
         }
-        finally {
-            return false;
-        }        
+
+        return false;
     }
 
     /**
@@ -199,7 +198,7 @@ class Installer
 
         try {
             # Set installed to true in the cache
-            Cache::put(self::CACHE_INSTALLED_KEY, true);
+            Cache::put(Installer::CACHE_INSTALLED_KEY, true);
         } catch (Exception $e) {
             $success = false;
             $exception = $e;

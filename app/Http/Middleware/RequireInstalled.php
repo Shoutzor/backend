@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Installer\Installer;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Support\Facades\Cache;
 
