@@ -48,16 +48,18 @@ The method I will describe below assumes you have PHP installed locally.
 5. Run `composer install` to install all dependencies of the `backend`. 
     - If you already did this before, you can skip this step.
 6. Run `composer install-shoutzor-dev` to install shoutzor
-    - If you want to reinstall shoutzor, you can run `composer fresh-install-shoutzor-dev` instead (WARNING: This will drop ALL TABLES!)
+    - If you want to reinstall shoutzor, you can run `composer fresh-install-shoutzor-dev` instead (⚠️ **WARNING** ⚠️ This will drop **ALL TABLES**!)
 7. You can now run `php artisan swoole:http start` to start the backend. If it gives you a `permission denied` error try running it with `sudo`.
 
 ## Composer commands:
 
-| Command                         | Explanation                                                           |
-|---------------------------------|-----------------------------------------------------------------------|
-| `composer install-shoutzor`     | Installs shoutzor for production environments                         |
-| `composer install-shoutzor-dev` | Installs shoutzor for development environments (adds mock data)       |
-| `composer add-mock-data`        | Generates and adds mock data to the database using `DevelopmentSeeder` |
+| Command                               | Explanation                                                            |
+|---------------------------------------|------------------------------------------------------------------------|
+| `composer install-shoutzor`           | Installs shoutzor for production environments                          |
+| `composer fresh-install-shoutzor`     | ⚠️ **Drops all tables**, then installs shoutzor for production environments                          |
+| `composer install-shoutzor-dev`       | Installs shoutzor for development environments (adds mock data)        |
+| `composer fresh-install-shoutzor-dev` | ⚠️ **Drops all tables**, then installs shoutzor for development environments (adds mock data)        |
+| `composer add-mock-data`              | Generates and adds mock data to the database using `DevelopmentSeeder` |
 
 ## Building & Using the docker container
 1. run `composer install` on your local machine
@@ -72,6 +74,7 @@ The method I will describe below assumes you have PHP installed locally.
 4. Haven't installed shoutzor yet? 
     - Run `composer install-shoutzor-dev` on the `backend` container.
     - For production run `composer install-shoutzor` instead.
+    - If the installation fails and throws errors about tables already existing you can either manually drop the tables or use the `fresh-install` variants of the `install` commands instead. Be aware that the `fresh-install` variants will **drop all tables** ⚠️
 
 ## Kindly supported by
 
