@@ -35,7 +35,8 @@ class CreateUsersTable extends Migration
             'id' => Str::uuid(),
             'username' => "admin",
             'email' => "admin-user@example.org",
-            'password' => Hash::make('admin')
+            'password' => Hash::make('admin'),
+            'created_at' => now()
         ]);
     }
 

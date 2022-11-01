@@ -62,7 +62,20 @@ class InstallShoutzor extends Command
             
             // Running the installer while shoutzor is already installed will break & reset things. Bad idea.
             if (Installer::isInstalled()) {
-                throw new ShoutzorInstallerException('Shoutz0r is already installed, aborting.');
+                $this->info('Shoutz0r is already installed');
+
+                // If the --fresh argument is not provided, abort.
+                if(!$this->option('fresh')) {
+                    throw new ShoutzorInstallerException('--fresh argument not provided, aborting.');
+                }
+
+                // --fresh is provided, warn the user about the consequences and ask for confirmation
+                $this->warn('WARNING: proceeding will remove all tables!');
+                if(!$this->confirm('Continue?', false)) {
+                    throw new ShoutzorInstallerException('User rejected; Aborting fresh install.');
+                }
+                
+                // User confirmed, continue.
             }
 
             # Clear any cache config to make sure we're loading the latest settings
