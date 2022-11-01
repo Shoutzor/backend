@@ -50,7 +50,7 @@ GRAPHQL;
             $roles = $this->directiveArgValue('roles', []);
 
             if(!$user && $requireAuth) {
-                throw new AuthorizationException("Users are required to be authenticated to access this data");
+                throw new AuthorizationException("You need to be authenticated to access this data");
             }
 
             // If the user is unauthenticated, but a role is required, return false.
@@ -58,7 +58,7 @@ GRAPHQL;
                 $guestRole = Role::findByName('guest');
 
                 if(!$guestRole) {
-                    throw new \Exception("Guest role not found, your shoutz0r installation might be corrupted");
+                    throw new \Exception("Guest role not found, the shoutz0r installation might be corrupted");
                 }
 
                 // Check if any roles other then "guest" are requested, as these can not be satisfied.
@@ -80,13 +80,13 @@ GRAPHQL;
             else {
                 foreach ($permissions as $permission) {
                     if(!$user->hasPermissionTo($permission, 'api')) {
-                        throw new AuthorizationException("User does not have the '$permission' permission.");
+                        throw new AuthorizationException("You do not have the '$permission' permission.");
                     }
                 }
 
                 foreach ($roles as $role) {
                     if (!$user->hasRole($role)) {
-                        throw new AuthorizationException("User does not have the '$role' role.");
+                        throw new AuthorizationException("You do not have the '$role' role.");
                     }
                 }
             }

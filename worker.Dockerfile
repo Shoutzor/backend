@@ -1,5 +1,9 @@
 FROM php:8.1-cli-alpine
 
+# Add OpCache
+RUN docker-php-ext-configure opcache --enable-opcache \
+    && docker-php-ext-install opcache
+
 # Install PDO MySQL
 RUN docker-php-ext-install pdo pdo_mysql
 

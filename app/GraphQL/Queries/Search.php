@@ -5,6 +5,8 @@ namespace App\GraphQL\Queries;
 use App\Models\Album;
 use App\Models\Artist;
 use App\Models\Media;
+use Laravel\Octane\Facades\Octane;
+
 
 final class Search
 {
@@ -16,7 +18,8 @@ final class Search
     {
         $q = $args['q'];
 
-        $media = Media::query()
+        [$media, $artists, $albums] = Octane::concurrently([
+            fn() => Media::query()
             ->with(['artists'])
             ->leftJoin('artist_media', 'artist_media.media_id', '=', 'media.id')
             ->leftJoin('artists', 'artists.id', '=', 'artist_media.artist_id')
@@ -35,9 +38,9 @@ final class Search
             ->orWhereRaw('MATCH (albums.title) AGAINST (? IN BOOLEAN MODE)', [$q])
             ->groupBy('media.id')
             ->orderBy('relevance', 'DESC')
-            ->get();
+            ->get(),
 
-        $artists = Artist::query()
+            fn() => Artist::query()
             ->leftJoin('artist_media', 'artist_media.artist_id', '=', 'artists.id')
             ->leftJoin('media', 'media.id', '=', 'artist_media.media_id')
             ->leftJoin('albums', 'media.album_id', '=', 'albums.id')
@@ -53,9 +56,9 @@ final class Search
             ->orWhereRaw('MATCH (albums.title) AGAINST (? IN BOOLEAN MODE)', [$q])
             ->groupBy('artists.id')
             ->orderBy('relevance', 'DESC')
-            ->get();
+            ->get(),
 
-        $albums = Album::query()
+            fn() => Album::query()
             ->leftJoin('media', 'albums.id', '=', 'media.album_id')
             ->leftJoin('artist_media', 'artist_media.media_id', '=', 'media.id')
             ->leftJoin('artists', 'artist_media.artist_id', '=', 'artists.id')
@@ -71,7 +74,8 @@ final class Search
             ->orWhereRaw('MATCH (albums.title) AGAINST (? IN BOOLEAN MODE)', [$q])
             ->groupBy('albums.id')
             ->orderBy('relevance', 'DESC')
-            ->get();
+            ->get()
+            ]);
 
         return [
             'media' => $media,

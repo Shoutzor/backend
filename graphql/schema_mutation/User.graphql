@@ -1,6 +1,6 @@
 extend type Mutation {
     whoami: WhoamiResponse!
-        @canAccess(permissions: ["website.access"])
+        @canAccess(permissions: ["website.access"], requireAuth: true)
 }
 
 type WhoamiResponse {

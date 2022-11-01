@@ -29,7 +29,7 @@ class Whoami
     {
         $this->resolveInfo = $resolveInfo;
         $user = $this->getAuthenticatedUser();
-
+        
         return [
             'user' => $this->getModelFromUser($user),
         ];

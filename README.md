@@ -47,7 +47,7 @@ The method I will describe below assumes you have PHP installed locally.
     - If you already did this before, you can skip this step.
 6. Run `composer install-shoutzor-dev` to install shoutzor
     - If you want to reinstall shoutzor, you can run `composer fresh-install-shoutzor-dev` instead (⚠️ **WARNING** ⚠️ This will drop **ALL TABLES**!)
-7. You can now run `php artisan octane:start` to start the backend.
+7. You can now run `php artisan octane:start --watch` to start the backend. Any changes you make will reload the server automatically
 
 ## Composer commands:
 
