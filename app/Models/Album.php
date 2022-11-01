@@ -34,6 +34,6 @@ class Album extends Model
             return $value;
         }
 
-        return '/images/album_cover_placeholder.jpg';
+        return '/images/placeholder/album_placeholder.jpg';
     }
 }

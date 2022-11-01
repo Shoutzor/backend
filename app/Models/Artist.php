@@ -27,6 +27,6 @@ class Artist extends Model
             return $value;
         }
 
-        return '/images/artist_placeholder.png';
+        return '/images/placeholder/artist_placeholder.png';
     }
 }
