@@ -19,4 +19,4 @@ COPY ./.env.default .env
 COPY ./ .
 
 # Start Swoole HTTP Server
-CMD ["php", "artisan", "swoole:http", "start"]
+CMD ["php", "artisan", "octane:start"]

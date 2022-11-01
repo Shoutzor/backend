@@ -47,11 +47,14 @@ class Installer
      * Checks the cache if Shoutz0r has been installed or not
      * If no key in the cache exists it will check the DB and
      * set the Cache key accordingly.
+     * This method uses the octane cache specifically because it will help to shave off
+     * just a little bit extra time over redis, and it's perfectly fine to cache on every
+     * backend-instance separately.
      * @return bool
      */
     public static function isInstalled() : bool {
         try {
-            $cachedInstallStatus = Cache::get(Installer::CACHE_INSTALLED_KEY);
+            $cachedInstallStatus = Cache::store('octane')->get(Installer::CACHE_INSTALLED_KEY);
 
             if($cachedInstallStatus === true) {
                 return true;
@@ -63,7 +66,7 @@ class Installer
             // on every request.
             if($cachedInstallStatus === null) {
                 $check = Installer::checkIfInstalled();
-                Cache::put(Installer::CACHE_INSTALLED_KEY, $check);
+                Cache::store('octane')->forever(Installer::CACHE_INSTALLED_KEY, $check);
                 return $check;
             }
         }
