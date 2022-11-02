@@ -22,8 +22,8 @@ class FillPermissions extends Migration
          * Create roles (if not existing)
          */
         $guest = $this->createRole('guest', 'this role is applied to unauthenticated users', true);
-        $user = $this->createRole('user', 'this is the default role for regular users');
-        $admin = $this->createRole('admin', 'this is a special role for administrators');
+        $user = $this->createRole('user', 'this is the default role assigned to all users', true);
+        $admin = $this->createRole('admin', 'this is a special role for administrators', true);
 
         /*
          * Create permissions (if not existing)

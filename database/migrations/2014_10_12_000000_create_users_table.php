@@ -24,6 +24,8 @@ class CreateUsersTable extends Migration
                 $table->string('email')->unique();
                 $table->timestamp('email_verified_at')->nullable();
                 $table->string('password');
+                $table->boolean('approved')->default(0);
+                $table->boolean('blocked')->default(0);
                 $table->timestamps();
             }
         );
@@ -35,7 +37,10 @@ class CreateUsersTable extends Migration
             'id' => Str::uuid(),
             'username' => "admin",
             'email' => "admin-user@example.org",
+            'email_verified_at' => now(),
             'password' => Hash::make('admin'),
+            'approved' => 1,
+            'blocked' => 0,
             'created_at' => now()
         ]);
     }

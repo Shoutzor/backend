@@ -3,6 +3,7 @@
 namespace App\GraphQL\Directives;
 
 use Closure;
+use App\Helpers\ShoutzorSetting;
 use GraphQL\Type\Definition\ResolveInfo;
 use Nuwave\Lighthouse\Exceptions\AuthorizationException;
 use Nuwave\Lighthouse\Schema\Directives\BaseDirective;
@@ -78,6 +79,19 @@ GRAPHQL;
             }
             // If the user is authenticated
             else {
+                // Check if the user has been approved
+                if(
+                    ShoutzorSetting::isManualApproveRequired() &&
+                    !$user->approved
+                    ) {
+                    throw new AuthorizationException("Your account has not been approved yet");
+                }
+
+                // Check if the user has been blocked
+                if($user->blocked) {
+                    throw new AuthorizationException("Your account is blocked");
+                }
+                
                 foreach ($permissions as $permission) {
                     if(!$user->hasPermissionTo($permission, 'api')) {
                         throw new AuthorizationException("You do not have the '$permission' permission.");

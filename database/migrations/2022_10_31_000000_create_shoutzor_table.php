@@ -22,8 +22,18 @@ class CreateShoutzorTable extends Migration
         );
 
         DB::table('shoutzor')->insert([
-            'key' => 'version',
-            'value' => '1.0'
+            [
+                'key' => 'version',
+                'value' => '1.0'
+            ],
+            [
+                'key' => 'user_manual_approve_required',
+                'value' => 'false'
+            ],
+            [
+                'key' => 'user_must_verify_email',
+                'value' => 'false'
+            ]
         ]);
     }
 

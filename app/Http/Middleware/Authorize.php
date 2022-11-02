@@ -29,6 +29,17 @@ class Authorize extends \Illuminate\Auth\Middleware\Authorize
                 return $next($request);
             }
         } else {
+            // Check if the user has been approved
+            if(!$user->approved) {
+                return response()->json(["message" => "This account has not been approved yet"], 403);
+            }
+
+            // Check if the user has been blocked
+            if($user->blocked) {
+                return response()->json(["message" => "This account is blocked"], 403);
+            }
+
+            // Finally, check if the user has the correct permission
             if ($user->hasPermissionTo($ability, 'api')) {
                 Response::allow();
                 return $next($request);

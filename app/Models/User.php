@@ -11,9 +11,10 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Traits\HasRoles;
 use Spatie\Permission\Traits\RefreshesPermissionCache;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
-class User extends Authenticatable implements HasApiTokensContract
+class User extends Authenticatable implements HasApiTokensContract, MustVerifyEmail
 {
     use UsesUUID, HasApiTokens, Notifiable, HasRoles, HasPermissions, RefreshesPermissionCache, HasFactory;
 
@@ -24,7 +25,7 @@ class User extends Authenticatable implements HasApiTokensContract
      *
      * @var array
      */
-    protected $fillable = ['username', 'email', 'password', 'api_token'];
+    protected $fillable = ['username', 'email', 'password', 'api_token', 'approved', 'blocked'];
     protected $appends = ['is_admin'];
 
     /**
@@ -46,6 +47,9 @@ class User extends Authenticatable implements HasApiTokensContract
         return $this->hasMany(Upload::class);
     }
 
+    /**
+     * Will return true if the user has the "admin" role
+     */
     protected function isAdmin(): Attribute
     {
         return new Attribute(

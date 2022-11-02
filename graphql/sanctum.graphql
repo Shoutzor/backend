@@ -145,11 +145,11 @@ enum UpdatePasswordStatus {
 
 extend type Mutation {
     login(input: LoginInput @spread): AccessToken!
-        @field(resolver: "DanielDeWit\\LighthouseSanctum\\GraphQL\\Mutations\\Login")
+        @field(resolver: "App\\GraphQL\\Mutations\\Login")
     logout: LogoutResponse! @guard
         @field(resolver: "DanielDeWit\\LighthouseSanctum\\GraphQL\\Mutations\\Logout")
     register(input: RegisterInput @spread): RegisterResponse!
-        @field(resolver: "DanielDeWit\\LighthouseSanctum\\GraphQL\\Mutations\\Register")
+        @field(resolver: "App\\GraphQL\\Mutations\\Register")
     verifyEmail(input: VerifyEmailInput! @spread): EmailVerificationResponse!
         @field(resolver: "DanielDeWit\\LighthouseSanctum\\GraphQL\\Mutations\\VerifyEmail")
     resendEmailVerification(input: ResendEmailVerificationInput! @spread): ResendEmailVerificationResponse!

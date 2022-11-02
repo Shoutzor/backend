@@ -42,25 +42,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Credits to Chris: https://stackoverflow.com/a/43117258/1024322
-        // Allows us to load svg images inline in our blade templates
-        Blade::directive('svg', function($arguments) {
-            // Funky madness to accept multiple arguments into the directive
-            list($path, $class) = array_pad(explode(',', trim($arguments, "() ")), 2, '');
-            $path = trim($path, "' ");
-            $class = trim($class, "' ");
-
-            if(file_exists(public_path($path))) {
-                // Create the dom document as per the other answers
-                $svg = new \DOMDocument();
-                $svg->load(public_path($path));
-                $svg->documentElement->setAttribute("class", $class);
-                return $svg->saveXML($svg->documentElement);
-            }
-
-            return "File '$path' does not exist";
-        });
-
         // Register the default media filetype sources (local audio file & local video file)
         // Other sources can be added as a module (ie: youtube, spotify, etc.)
         $this->mediaSourceManager->registerSource(new MediaSource('audio', 'audio file', ''));
