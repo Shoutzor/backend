@@ -5,6 +5,10 @@ namespace App\Helpers;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Helper class that fetches the shoutzor settings
+ * from the database and implements caching
+ */
 class ShoutzorSetting {
 
     const CACHE_KEY_PREFIX = 'shoutzor.setting.';
