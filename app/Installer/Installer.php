@@ -44,9 +44,8 @@ class Installer
     ];
 
     /**
-     * Checks the cache if Shoutz0r has been installed or not
-     * If no key in the cache exists it will check the DB and
-     * set the Cache key accordingly.
+     * Checks the cache if Shoutz0r has been installed
+     * If not, it will check the DB and once installed set the Cache key accordingly.
      * This method uses the octane cache specifically because it will help to shave off
      * just a little bit extra time over redis, and it's perfectly fine to cache on every
      * backend-instance separately.
@@ -54,20 +53,17 @@ class Installer
      */
     public static function isInstalled() : bool {
         try {
-            $cachedInstallStatus = Cache::store('octane')->get(Installer::CACHE_INSTALLED_KEY);
-
-            if($cachedInstallStatus === true) {
+            if(Cache::store('octane')->get(Installer::CACHE_INSTALLED_KEY, false)) {
                 return true;
             }
 
-            // If the cache key equals `null` the key does not exist
-            // Therefor we will have to check the current status from the database and
-            // set the cache key. We want to cache this to prevent having to query the DB
-            // on every request.
-            if($cachedInstallStatus === null) {
-                $check = Installer::checkIfInstalled();
-                Cache::store('octane')->forever(Installer::CACHE_INSTALLED_KEY, $check);
-                return $check;
+            // The cached value was not `true`. Therefor we need to keep re-checking.
+            // Due to local caching, we cannot cache a `false` value as this could
+            // cause problems with scaled instances of the backend; Where one container
+            // could run the installation, and other instances wouldn't be aware.
+            if(Installer::checkIfInstalled()) {
+                Cache::store('octane')->forever(Installer::CACHE_INSTALLED_KEY, true);
+                return true;
             }
         }
         catch(Exception $e) {
