@@ -29,7 +29,7 @@ class ShoutzorSetting {
         if($val === null) {
             // Item does not exist in cache yet, fetch & store
             $dbVal = Setting::find($key)->value;
-            Cache::forever(ShoutzorSetting::CACHE_KEY_PREFIX . $key, $dbVal);
+            static::updateCache($key, $dbVal);
 
             // Return value from database
             return $dbVal;
@@ -37,6 +37,11 @@ class ShoutzorSetting {
 
         // Cached item exists, return value
         return $val;
+    }
+
+    public static function updateCache($key, $value): void
+    {
+        Cache::forever(ShoutzorSetting::CACHE_KEY_PREFIX . $key, $value);
     }
 
     /**
