@@ -1,0 +1,7 @@
+type Setting {
+    key: ID!
+    value: String!
+    name: String!
+    description: String!
+    readonly: Boolean!
+}

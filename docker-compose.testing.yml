@@ -30,6 +30,8 @@ services:
     ports:
       - "8000:8000"
     environment:
+      - OCTANE_HOST=127.0.0.1
+      - OCTANE_PORT=8000
       - LOG_LEVEL
       - APP_ENV
       - APP_KEY

@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Setting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +28,7 @@ class ShoutzorSetting {
         // Check if the item exists in cache
         if($val === null) {
             // Item does not exist in cache yet, fetch & store
-            $dbVal = DB::table('shoutzor')->where('key', $key)->first()->value;
+            $dbVal = Setting::find($key)->value;
             Cache::forever(ShoutzorSetting::CACHE_KEY_PREFIX . $key, $dbVal);
 
             // Return value from database

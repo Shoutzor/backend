@@ -81,10 +81,11 @@ class Installer
     }
 
     /**
-     * Checks if a migration exists in the database to determine if shoutzor is installed
+     * Checks if the version of shoutzor exists in the database 
+     * to determine if shoutzor is installed
      */
     public static function checkIfInstalled() : bool {
-        return DB::table('shoutzor')->where('key', 'version')->exists();
+        return DB::table('settings')->where('key', 'version')->exists();
     }
 
     public function __construct($isDev = false, $isFresh = false) {
