@@ -3,6 +3,7 @@
 #import models/*.graphql
 #import enum/*.graphql
 #import input/*.graphql
+#import type/*.graphql
 
 type Query
 type Mutation

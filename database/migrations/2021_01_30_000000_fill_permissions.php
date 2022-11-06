@@ -46,8 +46,8 @@ class FillPermissions extends Migration
         $this->createPermission('admin.user.delete', '(dis)allows listing shoutzor roles', [$admin]);
 
         $this->createPermission('admin.role.list', '(dis)allows listing shoutzor roles', [$admin]);
-        $this->createPermission('admin.role.edit', '(dis)allows listing shoutzor roles', [$admin]);
-        $this->createPermission('admin.role.delete', '(dis)allows listing shoutzor roles', [$admin]);
+        $this->createPermission('admin.role.edit', '(dis)allows editing shoutzor roles', [$admin]);
+        $this->createPermission('admin.role.delete', '(dis)allows deleting shoutzor roles', [$admin]);
 
         $this->createPermission('admin.settings', '(dis)allows accessing and changing the shoutzor settings', [$admin]);
 

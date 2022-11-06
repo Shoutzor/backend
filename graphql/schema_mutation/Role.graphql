@@ -1,0 +1,14 @@
+extend type Mutation {
+    updateRole(
+        id: ID!
+        name: String @rules(apply: ["prohibited_if:protected,true"])
+        description: String @rules(apply: ["prohibited_if:protected,true"])
+        permissions: RolePermissionInput!
+    ): Role!
+        @canAccess(permissions: ["admin.role.edit"], requireAuth: true)
+        @update
+}
+
+input RolePermissionInput {
+    sync: [ID!]
+}
