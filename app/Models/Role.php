@@ -25,6 +25,17 @@ class Role extends \Spatie\Permission\Models\Role
 
             return true;
         });
+
+        static::deleting(function(Role $role) {
+            // If the role is protected, throw an exception
+            if(
+                $role->protected === 1
+            ) {
+                throw new Exception("Tried deleting a protected role");
+            }
+
+            return true;
+        });
     }
 
 }

@@ -21,9 +21,9 @@ class FillPermissions extends Migration
         /*
          * Create roles (if not existing)
          */
-        $guest = $this->createRole('guest', 'this role is applied to unauthenticated users', true);
-        $user = $this->createRole('user', 'this is the default role assigned to all users', true);
-        $admin = $this->createRole('admin', 'this is a special role for administrators', true);
+        $guestRole = $this->createRole('guest', 'this role is applied to unauthenticated users', true);
+        $userRole = $this->createRole('user', 'this is the default role assigned to all users', true);
+        $adminRole = $this->createRole('admin', 'this is a special role for administrators', true);
 
         /*
          * Create permissions (if not existing)
@@ -32,29 +32,37 @@ class FillPermissions extends Migration
         $this->createPermission(
             'website.access',
             '(dis)allows visiting the website (ie: require login)',
-            [$guest, $user, $admin]
+            [$guestRole, $userRole, $adminRole]
         );
 
-        $this->createPermission('website.search', '(dis)allows searching', [$guest, $user, $admin]);
-        $this->createPermission('website.upload', '(dis)allows uploading media', [$user, $admin]);
-        $this->createPermission('website.request', '(dis)allows requests', [$user, $admin]);
+        $this->createPermission('website.search', '(dis)allows searching', [$guestRole, $userRole, $adminRole]);
+        $this->createPermission('website.upload', '(dis)allows uploading media', [$userRole, $adminRole]);
+        $this->createPermission('website.request', '(dis)allows requests', [$userRole, $adminRole]);
 
-        $this->createPermission('admin.access', '(dis)allows accessing the admin panel and sub-pages', [$admin]);
+        $this->createPermission('admin.access', '(dis)allows accessing the admin panel and sub-pages', [$adminRole]);
 
-        $this->createPermission('admin.user.list', '(dis)allows listing shoutzor roles', [$admin]);
-        $this->createPermission('admin.user.edit', '(dis)allows listing shoutzor roles', [$admin]);
-        $this->createPermission('admin.user.delete', '(dis)allows listing shoutzor roles', [$admin]);
+        $this->createPermission('admin.user.list', '(dis)allows listing shoutzor roles', [$adminRole]);
+        $this->createPermission('admin.user.edit', '(dis)allows listing shoutzor roles', [$adminRole]);
+        $this->createPermission('admin.user.delete', '(dis)allows listing shoutzor roles', [$adminRole]);
 
-        $this->createPermission('admin.role.list', '(dis)allows listing shoutzor roles', [$admin]);
-        $this->createPermission('admin.role.edit', '(dis)allows editing shoutzor roles', [$admin]);
-        $this->createPermission('admin.role.delete', '(dis)allows deleting shoutzor roles', [$admin]);
+        $this->createPermission('admin.role.list', '(dis)allows listing shoutzor roles', [$adminRole]);
+        $this->createPermission('admin.role.create', '(dis)allows creating shoutzor roles', [$adminRole]);
+        $this->createPermission('admin.role.edit', '(dis)allows editing shoutzor roles', [$adminRole]);
+        $this->createPermission('admin.role.delete', '(dis)allows deleting shoutzor roles', [$adminRole]);
 
-        $this->createPermission('admin.settings', '(dis)allows accessing and changing the shoutzor settings', [$admin]);
+        $this->createPermission('admin.settings', '(dis)allows accessing and changing the shoutzor settings', [$adminRole]);
 
-        // TODO replace with DB statements
-        $user = User::where('username', 'admin')->first();
-        $user->assignRole('user');
-        $user->assignRole('admin');
+        // Get the admin user from the database
+        $user = DB::table('users')->where('username', 'admin')->first();
+
+        // Assign the "user" and "admin" roles to the admin user
+        DB::table('model_has_roles')->insert(
+            collect([$userRole, $adminRole])->map(fn ($roleId) => [
+                'role_id' => $roleId,
+                'model_type' => 'App\Models\User',
+                'model_uuid' => $user->id
+            ])->toArray()
+        );
     }
 
     /**

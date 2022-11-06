@@ -4,7 +4,7 @@ extend type Mutation {
         description: String! @rules(apply: ["required", "min:1"])
         permissions: RolePermissionInput!
     ): Role!
-        @canAccess(permissions: ["admin.role.edit"], requireAuth: true)
+        @canAccess(permissions: ["admin.role.create"], requireAuth: true)
         @create
 
     updateRole(
@@ -15,4 +15,10 @@ extend type Mutation {
     ): Role
         @canAccess(permissions: ["admin.role.edit"], requireAuth: true)
         @update
+
+    deleteRole(
+        id: ID!
+    ): Role
+        @canAccess(permissions: ["admin.role.delete"], requireAuth: true)
+        @delete
 }
