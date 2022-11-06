@@ -18,7 +18,7 @@ final class CanAccessDirective extends BaseDirective implements FieldMiddleware
     {
         return /** @lang GraphQL */ <<<'GRAPHQL'
 """
-Check if the user has the given permissioon
+Check if the user (or guest) has the given permissions and/or roles
 """
 directive @canAccess(
     """
