@@ -2,15 +2,13 @@
 
 namespace App\GraphQL\Directives;
 
+use App\Helpers\Authorization;
 use Closure;
-use App\Helpers\ShoutzorSetting;
 use GraphQL\Type\Definition\ResolveInfo;
-use Nuwave\Lighthouse\Exceptions\AuthorizationException;
 use Nuwave\Lighthouse\Schema\Directives\BaseDirective;
 use Nuwave\Lighthouse\Schema\Values\FieldValue;
 use Nuwave\Lighthouse\Support\Contracts\FieldMiddleware;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
-use Spatie\Permission\Models\Role;
 
 final class CanAccessDirective extends BaseDirective implements FieldMiddleware
 {
@@ -50,60 +48,18 @@ GRAPHQL;
             $permissions = $this->directiveArgValue('permissions', []);
             $roles = $this->directiveArgValue('roles', []);
 
-            if(!$user && $requireAuth) {
-                throw new AuthorizationException("You need to be authenticated to access this data");
+            // Start validation of the user authorization
+            $check = Authorization::validate($user);
+
+            // If authentication is required, ensure the user is authenticated
+            if($requireAuth) {
+                $check->requiresAuthentication();
             }
 
-            // If the user is unauthenticated, but a role is required, return false.
-            if (!$user) {
-                $guestRole = Role::findByName('guest');
-
-                if(!$guestRole) {
-                    throw new \Exception("Guest role not found, the shoutz0r installation might be corrupted");
-                }
-
-                // Check if any roles other then "guest" are requested, as these can not be satisfied.
-                if(
-                    count($roles) > 1 ||
-                    (count($roles) === 1 &&
-                    !in_array("guest", $roles))
-                ) {
-                    throw new AuthorizationException("User is unauthenticated");
-                }
-
-                foreach ($permissions as $permission) {
-                    if(!$guestRole->hasPermissionTo($permission, 'api')) {
-                        throw new AuthorizationException("Guest does not have the '$permission' permission.");
-                    }
-                }
-            }
-            // If the user is authenticated
-            else {
-                // Check if the user has been approved
-                if(
-                    ShoutzorSetting::isManualApproveRequired() &&
-                    !$user->approved
-                    ) {
-                    throw new AuthorizationException("Your account has not been approved yet");
-                }
-
-                // Check if the user has been blocked
-                if($user->blocked) {
-                    throw new AuthorizationException("Your account is blocked");
-                }
-                
-                foreach ($permissions as $permission) {
-                    if(!$user->hasPermissionTo($permission, 'api')) {
-                        throw new AuthorizationException("You do not have the '$permission' permission.");
-                    }
-                }
-
-                foreach ($roles as $role) {
-                    if (!$user->hasRole($role)) {
-                        throw new AuthorizationException("You do not have the '$role' role.");
-                    }
-                }
-            }
+            // Check if the user has the required permissions and roles
+            $check
+                ->can($permissions)
+                ->hasRole($roles);
 
             return $previousResolver($root, $args, $context, $resolveInfo);
         });
