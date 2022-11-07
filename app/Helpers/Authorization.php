@@ -79,6 +79,11 @@ class Authorization {
         // Ensure permissions is always an array
         $permissions = collect($permissions)->flatten();
 
+        // If no permissions are provided, there's nothing to check.
+        if(count($permissions) === 0) {
+            return $this;
+        }
+
         // If the user isn't authenticated, check the guest role
         $obj = $this->user ?? $this->guest;
 
@@ -94,6 +99,11 @@ class Authorization {
     public function hasRole(...$roles): self {
         // Ensure roles is always an array
         $roles = collect($roles)->flatten();
+
+        // If no roles are provided, there's nothing to check.
+        if(count($roles) === 0) {
+            return $this;
+        }
 
         if($this->user) {
             foreach($roles as $role) {
