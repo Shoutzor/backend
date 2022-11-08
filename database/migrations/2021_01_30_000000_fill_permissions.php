@@ -41,14 +41,14 @@ class FillPermissions extends Migration
 
         $this->createPermission('admin.access', '(dis)allows accessing the admin panel and sub-pages', [$adminRole]);
 
-        $this->createPermission('admin.user.list', '(dis)allows listing shoutzor roles', [$adminRole]);
-        $this->createPermission('admin.user.edit', '(dis)allows listing shoutzor roles', [$adminRole]);
-        $this->createPermission('admin.user.delete', '(dis)allows listing shoutzor roles', [$adminRole]);
+        $this->createPermission('admin.user.list', '(dis)allows creating users', [$adminRole]);
+        $this->createPermission('admin.user.edit', '(dis)allows editing users', [$adminRole]);
+        $this->createPermission('admin.user.delete', '(dis)allows deleting users', [$adminRole]);
 
-        $this->createPermission('admin.role.list', '(dis)allows listing shoutzor roles', [$adminRole]);
-        $this->createPermission('admin.role.create', '(dis)allows creating shoutzor roles', [$adminRole]);
-        $this->createPermission('admin.role.edit', '(dis)allows editing shoutzor roles', [$adminRole]);
-        $this->createPermission('admin.role.delete', '(dis)allows deleting shoutzor roles', [$adminRole]);
+        $this->createPermission('admin.role.list', '(dis)allows listing roles', [$adminRole]);
+        $this->createPermission('admin.role.create', '(dis)allows creating roles', [$adminRole]);
+        $this->createPermission('admin.role.edit', '(dis)allows editing roles', [$adminRole]);
+        $this->createPermission('admin.role.delete', '(dis)allows deleting roles', [$adminRole]);
 
         $this->createPermission('admin.settings', '(dis)allows accessing and changing the shoutzor settings', [$adminRole]);
 
