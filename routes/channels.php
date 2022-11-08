@@ -1,6 +1,5 @@
 <?php
 
-use App\Broadcasting\RoleChannel;
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -13,5 +12,3 @@ use Illuminate\Support\Facades\Broadcast;
 | used to check if an authenticated user can listen to the channel.
 |
 */
-
-//Broadcast::channel('roles.{role}', RoleChannel::class);

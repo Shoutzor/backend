@@ -1,4 +1,10 @@
 extend type Mutation {
     whoami: WhoamiResponse!
         @canAccess(permissions: ["website.access"], requireAuth: true)
+
+    deleteUser(
+        id: ID!
+    ): User
+        @canAccess(permissions: ["admin.user.delete"], requireAuth: true)
+        @delete
 }
