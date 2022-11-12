@@ -2,6 +2,19 @@ extend type Mutation {
     whoami: WhoamiResponse!
         @canAccess(permissions: ["website.access"], requireAuth: true)
 
+    updateUser(
+        id: ID!
+        username: String
+        email: String
+        approved: Boolean
+        blocked: Boolean
+        permissions: PermissionInput
+        roles: RoleInput
+    ): User
+        @canAccess(permissions: ["admin.user.edit"], requireAuth: true)
+        @update
+        @validator
+
     deleteUser(
         id: ID!
     ): User

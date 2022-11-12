@@ -1,0 +1,3 @@
+input PermissionInput {
+    sync: [ID!]
+}

@@ -5,9 +5,7 @@ extend type Query {
         @find
 
     "Fetch multiple permissions"
-    permissions(
-        name: String @where(operator: "like")
-    ): [Permission!]!
+    permissions: [Permission!]!
         @cache
         @all
 }
