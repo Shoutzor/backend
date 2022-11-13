@@ -14,12 +14,14 @@ extend type Mutation {
         permissions: PermissionInput!
     ): Role
         @canAccess(permissions: ["admin.role.edit"], requireAuth: true)
-        @update
         @validator
+        @update
+        @clearCache(type: "Role", idSource: { argument: "id" })
 
     deleteRole(
         id: ID!
     ): Role
         @canAccess(permissions: ["admin.role.delete"], requireAuth: true)
         @delete
+        @clearCache(type: "Role", idSource: { argument: "id" })
 }

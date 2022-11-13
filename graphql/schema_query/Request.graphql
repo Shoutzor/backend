@@ -1,13 +1,15 @@
 extend type Query {
     "Fetch Request"
-    request(id: ID! @eq): Request
+    request(
+        id: ID @eq
+    ): Request
         @find
 
     "Fetch multiple requests"
     requests(
         where: _ @whereConditions(columns: ["played_at"])
-        orderBy: RequestsOrderBy @orderBy
+        orderBy: _ @orderBy
     ): [Request!]!
-        @orderBy(column: "requested_at" direction: ASC)
         @paginate(defaultCount: 10)
+
 }
