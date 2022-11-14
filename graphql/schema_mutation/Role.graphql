@@ -1,7 +1,7 @@
 extend type Mutation {
     createRole(
-        name: String! @rules(apply: ["required", "min:1", "unique:App\\Models\\Role,name", "alpha_dash"])
-        description: String! @rules(apply: ["required", "min:1"])
+        name: String! @rules(attribute: "name", apply: ["bail", "required", "unique:App\\Models\\Role,name", "alpha_dash"])
+        description: String! @rules(attribute: "description", apply: ["bail", "required", "min:1"])
         permissions: PermissionInput!
     ): Role!
         @canAccess(permissions: ["admin.role.create"], requireAuth: true)
