@@ -6,22 +6,22 @@ type AccessToken {
 CUSTOMIZED for username / password authentication instead of email/password
 """
 input LoginInput {
-    username: String! @rules(apply: ["required", "alpha_num"])
-    password: String! @rules(apply: ["required"])
+    username: String! @rules(attribute: "username", apply: ["required", "alpha_num"])
+    password: String! @rules(attribute: "password", apply: ["required"])
 }
 
 """
 CUSTOMIZED to make use of username
 """
 input ResendEmailVerificationInput {
-    username: String! @rules(apply: ["required", "alpha_num"])
+    username: String! @rules(attribute: "username", apply: ["required", "alpha_num"])
 }
 
 """
 CUSTOMIZED to make use of username
 """
 input ForgotPasswordInput {
-    username: String! @rules(apply: ["required", "alpha_num"])
+    username: String! @rules(attribute: "username", apply: ["required", "alpha_num"])
 }
 
 """
@@ -42,19 +42,19 @@ enum RegisterStatus {
 CUSTOMIZED to require a username, email & password
 """
 input RegisterInput {
-    username: String! @rules(apply: ["bail", "required", "alpha_num", "unique:users,username"])
-    email: String! @rules(apply: ["bail", "required", "email", "unique:users,email"])
-    password: String! @rules(apply: ["bail", "required", "min:8", "confirmed"])
-    password_confirmation: String! @rules(apply: ["required"])
+    username: String! @rules(attribute: "username", apply: ["bail", "required", "alpha_num", "unique:users,username"])
+    email: String! @rules(attribute: "email", apply: ["bail", "required", "email", "unique:users,email"])
+    password: String! @rules(attribute: "password", apply: ["bail", "required", "min:8", "confirmed"])
+    password_confirmation: String!
 }
 
 """
 CUSTOMIZED to require an email
 """
 input ResetPasswordInput {
-    email: String! @rules(apply: ["required", "email"])
+    email: String! @rules(attribute: "email", apply: ["required", "email"])
     token: String!
-    password: String! @rules(apply: ["confirmed"])
+    password: String! @rules(attribute: "password", apply: ["confirmed"])
     password_confirmation: String!
 }
 
@@ -145,7 +145,7 @@ enum ResetPasswordStatus {
 
 input UpdatePasswordInput {
     current_password: String!
-    password: String! @rules(apply: ["confirmed"])
+    password: String! @rules(attribute: "password", apply: ["bail", "required", "confirmed", "min:8"])
     password_confirmation: String!
 }
 
