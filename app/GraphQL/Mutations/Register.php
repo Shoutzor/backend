@@ -70,9 +70,17 @@ class Register extends LighthouseSanctumRegister
             throw new HasApiTokensException($user);
         }
 
-        return [
-            'token'  => $user->createToken('default')->plainTextToken,
-            'status' => 'SUCCESS',
-        ];
+        if(ShoutzorSetting::isManualApproveRequired()) {
+            return [
+                'token' => null,
+                'status' => 'MANUAL_APPROVE_REQUIRED'
+            ];
+        }
+        else {
+            return [
+                'token' => $user->createToken('default')->plainTextToken,
+                'status' => 'SUCCESS',
+            ];
+        }
     }
 }

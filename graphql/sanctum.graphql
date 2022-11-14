@@ -24,6 +24,20 @@ input ForgotPasswordInput {
     username: String! @rules(apply: ["required", "alpha_num"])
 }
 
+"""
+CUSTOMIZED to show if manual verification is required
+"""
+enum RegisterStatus {
+    """MANUAL_APPROVE_REQUIRED"""
+    MANUAL_APPROVE_REQUIRED
+
+    """MUST_VERIFY_EMAIL"""
+    MUST_VERIFY_EMAIL
+
+    """SUCCESS"""
+    SUCCESS
+}
+
 input ResetPasswordInput {
     email: String! @rules(apply: ["email"])
     token: String!
@@ -44,14 +58,6 @@ enum LogoutStatus {
 type RegisterResponse {
     token: String
     status: RegisterStatus!
-}
-
-enum RegisterStatus {
-    """MUST_VERIFY_EMAIL"""
-    MUST_VERIFY_EMAIL
-
-    """SUCCESS"""
-    SUCCESS
 }
 
 type EmailVerificationResponse {
