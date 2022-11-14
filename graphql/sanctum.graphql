@@ -38,8 +38,21 @@ enum RegisterStatus {
     SUCCESS
 }
 
+"""
+CUSTOMIZED to require a username, email & password
+"""
+input RegisterInput {
+    username: String! @rules(apply: ["bail", "required", "alpha_num", "unique:users,username"])
+    email: String! @rules(apply: ["bail", "required", "email", "unique:users,email"])
+    password: String! @rules(apply: ["bail", "required", "min:8", "confirmed"])
+    password_confirmation: String! @rules(apply: ["required"])
+}
+
+"""
+CUSTOMIZED to require an email
+"""
 input ResetPasswordInput {
-    email: String! @rules(apply: ["email"])
+    email: String! @rules(apply: ["required", "email"])
     token: String!
     password: String! @rules(apply: ["confirmed"])
     password_confirmation: String!
@@ -83,14 +96,6 @@ input VerifyEmailInput {
     hash: String!
     expires: Int
     signature: String
-}
-
-input RegisterInput {
-    username: String! @rules(apply: ["bail", "alpha_num", "unique:users,username"])
-    email: String! @rules(apply: ["bail", "email", "unique:users,email"])
-    password: String! @rules(apply: ["confirmed"])
-    password_confirmation: String!
-    verification_url: VerificationUrlInput
 }
 
 """
