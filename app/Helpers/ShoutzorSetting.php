@@ -64,4 +64,12 @@ class ShoutzorSetting {
     public static function version() : string {
         return static::getSetting('version');
     }
+
+    public static function emailVerificationUrl() : string {
+        return config('shoutzor.frontend_url') . '/?action=verify-email&id=__ID__&hash=__HASH__&exp=__EXPIRES__&sig=__SIGNATURE__';
+    }
+
+    public static function resetPasswordUrl() : string {
+        return config('shoutzor.frontend_url') . '/?action=reset-password&email=__EMAIL__&token=__TOKEN__';
+    }
 }

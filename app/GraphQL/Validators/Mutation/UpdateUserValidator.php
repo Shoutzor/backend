@@ -11,11 +11,14 @@ class UpdateUserValidator extends Validator
     {
         return [
             'username' => [
+                'bail',
                 'sometimes',
                 'required',
+                'alpha_num',
                 Rule::unique('users', 'username')->ignore($this->arg('id'), 'id')
             ],
             'email' => [
+                'bail',
                 'sometimes',
                 'required',
                 'email',
@@ -26,6 +29,7 @@ class UpdateUserValidator extends Validator
              * Once a user is approved he should not be un-approved. Block the user instead.
              */
             'approved' => [
+                'bail',
                 'sometimes',
                 'required',
                 'boolean',

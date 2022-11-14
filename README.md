@@ -69,6 +69,7 @@ The method I will describe below assumes you have PHP installed locally.
 3. Make sure to configure the environment variables before running the containers
     - No `APP_KEY` yet? Run `php artisan key:generate --show` and use it's value
     - Multiple backend containers? Make sure you configure the same `APP_KEY` for them
+    - Make sure `FRONTEND_URL` points to the correct url, should look like: `http://myurl.com`
 4. Haven't installed shoutzor yet? 
     - Run `composer install-shoutzor-dev` on the `backend` container.
     - For production run `composer install-shoutzor` instead.

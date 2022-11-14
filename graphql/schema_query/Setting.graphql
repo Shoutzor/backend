@@ -1,11 +1,9 @@
 extend type Query {
     "Fetch single setting"
-    setting(key: ID! @eq): Setting!
-        @canAccess(permissions: ["admin.settings"], requireAuth: true)
+    setting(key: ID! @eq): Setting
         @find
 
     "Fetch all settings"
     settings(readonly: Boolean @eq): [Setting!]!
-        @canAccess(permissions: ["admin.settings"], requireAuth: true)
         @all
 }

@@ -1,5 +1,5 @@
 type Setting {
-    key: ID! @cacheKey
+    key: String! @cacheKey
     value: String!
     name: String!
     description: String!

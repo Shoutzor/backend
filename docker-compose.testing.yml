@@ -22,6 +22,9 @@ services:
     networks:
       - shoutzor-backend
 
+  mailhog:
+    image: 'mailhog/mailhog'
+
   backend:
     build:
       context: .
@@ -38,6 +41,7 @@ services:
       - APP_DEBUG
       - APP_SCHEME
       - APP_DOMAIN
+      - FRONTEND_URL=${FRONTEND_URL:-http://shoutzor.local}
       - DB_HOST=${DB_HOST:-mysql}
       - DB_PORT
       - DB_DATABASE
@@ -48,6 +52,14 @@ services:
       - PUSHER_HOST=${PUSHER_HOST:-echo}
       - CACHE_DRIVER=${CACHE_DRIVER:-redis}
       - REDIS_PASSWORD=${REDIS_PASSWORD:-R3disPassw0rd!}
+      - MAIL_MAILER
+      - MAIL_HOST
+      - MAIL_PORT
+      - MAIL_USERNAME
+      - MAIL_PASSWORD
+      - MAIL_ENCRYPTION
+      - MAIL_FROM_ADDRESS
+      - MAIL_FROM_NAME
     volumes:
       - tmp:/code
     networks:

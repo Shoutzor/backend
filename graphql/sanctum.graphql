@@ -3,11 +3,32 @@ type AccessToken {
 }
 
 """
-Customized for username / password authentication instead of email/password
+CUSTOMIZED for username / password authentication instead of email/password
 """
 input LoginInput {
     username: String! @rules(apply: ["required", "alpha_num"])
     password: String! @rules(apply: ["required"])
+}
+
+"""
+CUSTOMIZED to make use of username
+"""
+input ResendEmailVerificationInput {
+    username: String! @rules(apply: ["required", "alpha_num"])
+}
+
+"""
+CUSTOMIZED to make use of username
+"""
+input ForgotPasswordInput {
+    username: String! @rules(apply: ["required", "alpha_num"])
+}
+
+input ResetPasswordInput {
+    email: String! @rules(apply: ["email"])
+    token: String!
+    password: String! @rules(apply: ["confirmed"])
+    password_confirmation: String!
 }
 
 type LogoutResponse {
@@ -58,13 +79,8 @@ input VerifyEmailInput {
     signature: String
 }
 
-input ResendEmailVerificationInput {
-    email: String! @rules(apply: ["email"])
-    verification_url: VerificationUrlInput
-}
-
 input RegisterInput {
-    username: String! @rules(apply: ["bail", "username", "unique:users,username"])
+    username: String! @rules(apply: ["bail", "alpha_num", "unique:users,username"])
     email: String! @rules(apply: ["bail", "email", "unique:users,email"])
     password: String! @rules(apply: ["confirmed"])
     password_confirmation: String!
@@ -86,11 +102,6 @@ input VerificationUrlInput {
     url: String! @rules(apply: ["url"])
 }
 
-input ForgotPasswordInput {
-    email: String! @rules(apply: ["email"])
-    reset_password_url: ResetPasswordUrlInput
-}
-
 """
 The url used to reset the password.
 Use the `__EMAIL__` and `__TOKEN__` placeholders to inject the reset password email and token.
@@ -109,13 +120,6 @@ type ForgotPasswordResponse {
 enum ForgotPasswordStatus {
     """EMAIL_SENT"""
     EMAIL_SENT
-}
-
-input ResetPasswordInput {
-    email: String! @rules(apply: ["email"])
-    token: String!
-    password: String! @rules(apply: ["confirmed"])
-    password_confirmation: String!
 }
 
 type ResetPasswordResponse {
@@ -153,9 +157,9 @@ extend type Mutation {
     verifyEmail(input: VerifyEmailInput! @spread): EmailVerificationResponse!
         @field(resolver: "DanielDeWit\\LighthouseSanctum\\GraphQL\\Mutations\\VerifyEmail")
     resendEmailVerification(input: ResendEmailVerificationInput! @spread): ResendEmailVerificationResponse!
-        @field(resolver: "DanielDeWit\\LighthouseSanctum\\GraphQL\\Mutations\\ResendEmailVerification")
+        @field(resolver: "App\\GraphQL\\Mutations\\ResendEmailVerification")
     forgotPassword(input: ForgotPasswordInput! @spread): ForgotPasswordResponse!
-        @field(resolver: "DanielDeWit\\LighthouseSanctum\\GraphQL\\Mutations\\ForgotPassword")
+        @field(resolver: "App\\GraphQL\\Mutations\\ForgotPassword")
     resetPassword(input: ResetPasswordInput! @spread): ResetPasswordResponse!
         @field(resolver: "DanielDeWit\\LighthouseSanctum\\GraphQL\\Mutations\\ResetPassword")
     updatePassword(input: UpdatePasswordInput! @spread): UpdatePasswordResponse! @guard

@@ -5,16 +5,9 @@ namespace App\GraphQL\Mutations;
 use Exception;
 use App\Helpers\ShoutzorSetting;
 use DanielDeWit\LighthouseSanctum\GraphQL\Mutations\Register as LighthouseSanctumRegister;
-use DanielDeWit\LighthouseSanctum\Contracts\Services\EmailVerificationServiceInterface;
 use DanielDeWit\LighthouseSanctum\Exceptions\HasApiTokensException;
-use DanielDeWit\LighthouseSanctum\Traits\CreatesUserProvider;
-use Illuminate\Auth\AuthManager;
 use Illuminate\Auth\EloquentUserProvider;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Contracts\Config\Repository as Config;
-use Illuminate\Contracts\Hashing\Hasher;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Laravel\Sanctum\Contracts\HasApiTokens;
 
 class Register extends LighthouseSanctumRegister
@@ -32,19 +25,33 @@ class Register extends LighthouseSanctumRegister
 
         $user = $this->saveUser(
             $userProvider->createModel(),
-            $this->getPropertiesFromArgs($args),
+            [
+                ...$this->getPropertiesFromArgs($args),
+                // Invert the value of whether manual approvement is required
+                // Manual approvement required -> results in "false", ie: "not approved"; and vice-versa.
+                'approved' => !ShoutzorSetting::isManualApproveRequired()
+            ]
         );
-        
+
+        // Set the user's default role
+        $user->assignRole('user');
+        $user->save();
+
         // Check if users are required to verify their email
         if (ShoutzorSetting::isEmailVerificationRequired()) {
-            if (isset($args['verification_url'])) {
-                /** @var array<string, string> $verificationUrl */
-                $verificationUrl = $args['verification_url'];
+            $this->emailVerificationService->setVerificationUrl(ShoutzorSetting::emailVerificationUrl());
 
-                $this->emailVerificationService->setVerificationUrl($verificationUrl['url']);
+            try {
+                $user->sendEmailVerificationNotification();
             }
+            catch(Exception $e) {
+                Log::critical('Failed to send verification email to the user', [
+                    'user' => $user,
+                    'error' => $e->getMessage()
+                ]);
 
-            $user->sendEmailVerificationNotification();
+                throw $e;
+            }
 
             return [
                 'token'  => null,
@@ -55,10 +62,6 @@ class Register extends LighthouseSanctumRegister
             // No verification required
             $user->email_verified_at = now();
         }
-
-        // Invert the value of whether manual approvement is required
-        // Manual approvement required -> results in "false", ie: "not approved"; and vice-versa.
-        $user->approved = !ShoutzorSetting::isManualApproveRequired();
 
         // Save the user's "email_verified_at" and "approved" values
         $user->save();
