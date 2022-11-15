@@ -6,6 +6,7 @@ extend type Mutation {
     ): Role!
         @canAccess(permissions: ["admin.role.create"], requireAuth: true)
         @create
+        @broadcast(subscription: "roleCreated")
 
     updateRole(
         id: ID!
@@ -17,6 +18,7 @@ extend type Mutation {
         @validator
         @update
         @clearCache(type: "Role", idSource: { argument: "id" })
+        @broadcast(subscription: "roleUpdated")
 
     deleteRole(
         id: ID!
@@ -24,4 +26,5 @@ extend type Mutation {
         @canAccess(permissions: ["admin.role.delete"], requireAuth: true)
         @delete
         @clearCache(type: "Role", idSource: { argument: "id" })
+        @broadcast(subscription: "roleDeleted")
 }
