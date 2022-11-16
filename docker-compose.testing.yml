@@ -17,7 +17,7 @@ services:
     ports:
       - "6379:6379"
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-R3disPassw0rd!}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-your-redis-passw0rd!}
       - REDIS_TLS_ENABLED=${REDIS_TLS_ENABLED:-false}
     networks:
       - shoutzor-backend
@@ -48,10 +48,11 @@ services:
       - DB_USERNAME
       - DB_PASSWORD=${DB_PASSWORD:-Shoutz0r!}
       - LIGHTHOUSE_SUBSCRIPTION_STORAGE=${LIGHTHOUSE_SUBSCRIPTION_STORAGE:-redis}
+      - LIGHTHOUSE_BROADCASTER
       - PUSHER_APP_SECRET=${PUSHER_APP_SECRET:-AppSecr3t!}
       - PUSHER_HOST=${PUSHER_HOST:-echo}
       - CACHE_DRIVER=${CACHE_DRIVER:-redis}
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-R3disPassw0rd!}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-your-redis-passw0rd!}
       - MAIL_MAILER
       - MAIL_HOST
       - MAIL_PORT
@@ -89,7 +90,7 @@ services:
       - PUSHER_APP_SECRET=${PUSHER_APP_SECRET:-AppSecr3t!}
       - PUSHER_HOST=${PUSHER_HOST:-echo}
       - CACHE_DRIVER=${CACHE_DRIVER:-redis}
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-R3disPassw0rd!}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-your-redis-passw0rd!}
     volumes:
       - tmp:/code
     depends_on:
@@ -102,6 +103,7 @@ services:
     image: 'quay.io/soketi/soketi:1.1.0-16-debian'
     ports:
       - "6001:6001"
+      - "9601:9601"
     networks:
       - shoutzor-backend
     environment:
@@ -112,9 +114,9 @@ services:
       - SOKETI_DEFAULT_APP_ID=${PUSHER_APP_ID}
       - SOKETI_DEFAULT_APP_KEY=${PUSHER_APP_KEY}
       - SOKETI_DEFAULT_APP_SECRET=${PUSHER_APP_SECRET}
-      - SOKETI_DB_REDIS_HOST=${REDIS_HOST:-redis}
-      - SOKETI_DB_REDIS_PORT=${REDIS_PORT}
-      - SOKETI_DB_REDIS_PASSWORD=${REDIS_PASSWORD:-R3disPassw0rd!}
+      - SOKETI_DB_REDIS_HOST=redis
+      - SOKETI_DB_REDIS_PORT=6379
+      - SOKETI_DB_REDIS_PASSWORD=${REDIS_PASSWORD:-your-redis-passw0rd!}
       - SOKETI_DB_REDIS_DB=${REDIS_DB}
       - SOKETI_ADAPTER_DRIVER=redis
       - SOKETI_CACHE_DRIVER=memory

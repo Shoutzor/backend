@@ -1,7 +1,7 @@
 extend type Subscription {
 
-    roleCreated(id: ID!): Role
-    roleUpdated(id: ID!): Role
-    roleDeleted(id: ID!): Role
+    roleCreated(id: ID): Role
+    roleUpdated(id: ID): Role
+    roleDeleted(id: ID): Role
 
 }

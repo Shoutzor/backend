@@ -3,6 +3,7 @@
 namespace App\GraphQL\Subscriptions;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Nuwave\Lighthouse\Schema\Types\GraphQLSubscription;
 use Nuwave\Lighthouse\Subscriptions\Subscriber;
 
