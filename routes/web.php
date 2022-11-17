@@ -13,4 +13,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', 'AppController@index')->name('home');
+Route::get('/', function() {
+    // Errors are handled in middleware
+    // NOT_INSTALLED: App\Http\Middleware\RequireInstalled
+
+    return json_encode([
+        'available' => true,
+        'status' => 'OK'
+    ]);
+});

@@ -17,6 +17,10 @@ class RequireInstalled
             return $next($request);
         }
 
-        return response()->view('install-required', [], 503);
+
+        return response()->json([
+            'available' => false,
+            'status' => 'NOT_INSTALLED'
+        ], 503);
     }
 }
