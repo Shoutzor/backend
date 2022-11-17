@@ -1,5 +1,6 @@
 extend type Subscription {
 
     requestAdded(id: ID): Request
+    requestPlayed(id: ID): Request
 
 }
