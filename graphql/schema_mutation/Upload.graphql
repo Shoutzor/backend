@@ -2,5 +2,6 @@ extend type Mutation {
 
     upload(file: FileUpload!): Upload
         @canAccess(permissions: ["website.upload"], requireAuth: true)
+        @broadcast(subscription: "uploadCreated")
 
 }

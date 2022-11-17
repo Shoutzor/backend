@@ -40,7 +40,7 @@ The method I will describe below assumes you have PHP installed locally.
     - `PUSHER_APP_SECRET` If you will be doing any laravel echo development, define your `echo` server password here
     
 2. Open the terminal and navigate to the root of the backend project
-3. Run `docker-compose -f docker-compose.testing.yml up mysql redis` 
+3. Run `docker-compose -f docker-compose.testing.yml up mysql redis echo` 
     - This will start the `mysql` and `redis` containers that are required for the backend to work; if you need any other containers to run, just add them to the list after `up`
 4. Open another terminal and navigate to the root of the backend project
 5. Run `composer install` to install all dependencies of the `backend`. 

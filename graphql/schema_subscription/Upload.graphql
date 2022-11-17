@@ -1,0 +1,7 @@
+extend type Subscription {
+
+    uploadCreated(id: ID): Upload
+    uploadUpdated(id: ID): Upload
+    uploadDeleted(id: ID): Upload
+
+}

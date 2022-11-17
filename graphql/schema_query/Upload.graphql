@@ -2,9 +2,8 @@ extend type Query {
     "Fetch multiple uploads"
     uploads(
         where: _ @whereConditions(columns: ["uploaded_by", "status"])
-        orderBy: UploadsOrderBy @orderBy
+        orderBy: _ @orderBy(columns: ["status", "uploaded_at"])
     ): [Upload!]!
         @canAccess(permissions: ["website.upload"], requireAuth: true)
-        @orderBy(column: "uploaded_at" direction: ASC)
         @paginate(defaultCount: 10)
 }

@@ -28,7 +28,7 @@ class Upload
      * @param ResolveInfo $resolveInfo
      * @return Upload
      */
-    #[ArrayShape(['user' => "\App\Models\User"])] public function __invoke($_, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): Upload
+    #[ArrayShape(['user' => "\App\Models\User"])] public function __invoke($_, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): UploadModel
     {
         $this->resolveInfo = $resolveInfo;
         $user = $this->getAuthenticatedUser();
