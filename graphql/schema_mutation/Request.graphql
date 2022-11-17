@@ -1,7 +1,4 @@
 extend type Mutation {
-    lastPlayed: lastPlayedResponse
-        @canAccess(permissions: ["website.access"])
-
     addRequest(id: ID!): DefaultResponse!
         @canAccess(permissions: ["website.request"], requireAuth: true)
 }
