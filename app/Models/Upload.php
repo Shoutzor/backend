@@ -20,7 +20,7 @@ class Upload extends Model
     const CREATED_AT = 'uploaded_at';
     const UPDATED_AT = null;
 
-    protected $fillable = ['filename', 'uploaded_by', 'status'];
+    protected $fillable = ['original_filename', 'filename', 'uploaded_by', 'status'];
 
     public function uploaded_by()
     {

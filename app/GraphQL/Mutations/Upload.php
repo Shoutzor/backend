@@ -65,8 +65,8 @@ class Upload
         $file->storeAs(UploadModel::STORAGE_PATH, $newName);
 
         //Store the upload in the database for use in the Job
-
         $upload = UploadModel::create([
+            'original_filename' => strip_tags($file->getClientOriginalName()),
             'filename' => $newName,
             'uploaded_by' => $user->id,
             'status' => UploadModel::STATUS_QUEUED

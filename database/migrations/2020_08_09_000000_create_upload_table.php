@@ -17,6 +17,7 @@ class CreateUploadTable extends Migration
             'uploads',
             function (Blueprint $table) {
                 $table->uuid('id')->primary();
+                $table->string('original_filename');
                 $table->string('filename');
                 $table->foreignUuid('uploaded_by')->constrained('users', 'id')->cascadeOnDelete();
                 $table->timestamp('uploaded_at')->useCurrent();
