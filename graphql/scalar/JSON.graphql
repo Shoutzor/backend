@@ -1,0 +1,2 @@
+"Json scalar from the mll-lab/graphql-php-scalars package."
+scalar JSON @scalar(class: "Marqant\\LighthouseJson\\GraphQL\\Scalars\\JSON")

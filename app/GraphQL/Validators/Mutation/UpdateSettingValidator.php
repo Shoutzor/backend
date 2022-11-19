@@ -16,6 +16,17 @@ class UpdateSettingValidator extends Validator
             'value' => [
                 'required',
                 Rule::prohibitedIf(fn() => $setting->readonly),
+                function ($attribute, $json, $fail) {
+                    if(!is_object($json)) {
+                        $fail('The '.$attribute.' is not a valid object');
+                    }
+                    elseif(!property_exists($json, 'data')) {
+                        $fail('The '.$attribute.' is missing the required data field');
+                    }
+                    elseif(count(array_keys(get_object_vars($json))) > 1) {
+                        $fail('The '.$attribute.' may not contain other fields then the data field');
+                    }
+                },
             ]
         ];
     }

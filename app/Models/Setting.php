@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
@@ -26,6 +27,12 @@ class Setting extends Model
      *
      * @var array
      */
-    protected $fillable = ['key', 'value', 'name', 'description', 'readonly'];
+    protected $fillable = ['key', 'value', 'type', 'name', 'description', 'readonly'];
 
+    /**
+     * "value" will always be of type JSON, containing a "data" field, which is of the type as defined by "type"
+     */
+    protected $casts = [
+        'value' => AsArrayObject::class
+    ];
 }

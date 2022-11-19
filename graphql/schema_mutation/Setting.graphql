@@ -1,6 +1,7 @@
 extend type Mutation {
-    updateSetting(key: String!, value: String!): Setting
+    updateSetting(key: String!, value: JSON!): Setting
         @canAccess(permissions: ["admin.settings"], requireAuth: true)
         @update
         @validator
+        @broadcast(subscription: "settingUpdated")
 }

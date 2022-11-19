@@ -1,6 +1,7 @@
 type Setting {
     key: String! @cacheKey
-    value: String!
+    value: JSON!
+    type: String!
     name: String!
     description: String!
     readonly: Boolean!

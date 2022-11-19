@@ -14,6 +14,6 @@ class SettingObserver {
     public $afterCommit = true;
 
     public function updated(Setting $setting) {
-        ShoutzorSetting::updateCache($setting->key, $setting->value);
+        ShoutzorSetting::updateCache($setting->key, ShoutzorSetting::createCacheData($setting));
     }
 }
