@@ -27,7 +27,17 @@ class Setting extends Model
      *
      * @var array
      */
-    protected $fillable = ['key', 'value', 'type', 'name', 'description', 'readonly'];
+    protected $fillable = [
+        'key',
+        'value',
+        'type',
+        'name',
+        'description',
+        'group',
+        'order',
+        'validation',
+        'readonly'
+    ];
 
     /**
      * "value" will always be of type JSON, containing a "data" field, which is of the type as defined by "type"

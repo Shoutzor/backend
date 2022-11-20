@@ -4,5 +4,7 @@ type Setting {
     type: String!
     name: String!
     description: String!
+    group: String!
+    order: Int!
     readonly: Boolean!
 }
