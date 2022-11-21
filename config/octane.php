@@ -38,6 +38,9 @@ return [
 
     'server' => env('OCTANE_SERVER', 'swoole'),
 
+    'host' => env('OCTANE_HOST', '0.0.0.0'),
+    'port' => env('OCTANE_PORT', 8000),
+
     /*
     |--------------------------------------------------------------------------
     | Force HTTPS

@@ -1,0 +1,110 @@
+version: '3.8'
+services:
+  mysql:
+    image: 'mysql:8'
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_RANDOM_ROOT_PASSWORD=true
+    networks:
+      - shoutzor-backend
+
+  redis:
+    image: 'bitnami/redis:7.0'
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD
+      - REDIS_TLS_ENABLED
+    networks:
+      - shoutzor-backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend.Dockerfile
+      args:
+        APP_ENV: "${APP_ENV:-production}"
+    image: xorinzor/shoutz0r-backend:${APP_ENV}
+    ports:
+      - "${APP_PORT}:${OCTANE_PORT}"
+    env_file:
+      - ./.env
+    volumes:
+      - tmp:/code
+      - storage_temp:/code/storage/app/temp
+      - storage_media:/code/storage/app/media
+    networks:
+      - shoutzor-backend
+    depends_on:
+      - redis
+      - mysql
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./worker.Dockerfile
+    image: xorinzor/shoutz0r-worker
+    env_file:
+      - ./.env
+    volumes:
+      - tmp:/code
+      - storage_temp:/code/storage/app/temp
+      - storage_media:/code/storage/app/media
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - shoutzor-backend
+
+  echo:
+    image: 'quay.io/soketi/soketi:1.1.0-16-debian'
+    ports:
+      - "6001:6001"
+    networks:
+      - shoutzor-backend
+    environment:
+      - SOKETI_DEBUG
+      - SOKETI_SSL_CERT
+      - SOKETI_SSL_KEY
+      - SOKETI_SSL_PASS
+      - SOKETI_DEFAULT_APP_ID
+      - SOKETI_DEFAULT_APP_KEY
+      - SOKETI_DEFAULT_APP_SECRET
+      - SOKETI_DEFAULT_APP_WEBHOOKS
+      - SOKETI_DB_REDIS_HOST
+      - SOKETI_DB_REDIS_PORT
+      - SOKETI_DB_REDIS_PASSWORD
+      - SOKETI_DB_REDIS_DB
+      - SOKETI_ADAPTER_DRIVER
+      - SOKETI_CACHE_DRIVER
+      - SOKETI_QUEUE_DRIVER
+      - SOKETI_DB_REDIS_KEY_PREFIX
+      - SOKETI_APP_MANAGER_CACHE_ENABLED
+    depends_on:
+      - redis
+
+volumes:
+  # The default mount for the app directory, changes in here should not be persisted.
+  tmp:
+  # The directory where processed media files can be found
+  storage_media:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./storage/app/media
+  # The directory where uploaded files (before they're processed) can be found
+  storage_temp:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./storage/app/temp
+
+networks:
+  shoutzor-backend:
+    enable_ipv6: false

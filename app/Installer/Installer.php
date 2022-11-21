@@ -179,13 +179,18 @@ class Installer
         $exception = null;
 
         try {
-            # Generate route cache
-            Artisan::call('route:cache');
+            # Clear all caches first
+            Artisan::call('route:clear');
+            Artisan::call('view:clear');
+            Artisan::call('config:clear');
+            Artisan::call('permission:cache-reset');
+            Artisan::call('lighthouse:clear-cache');
+            Artisan::call('cache:clear');
 
-            # Generate view cache
-            Artisan::call('view:cache');
-
+            # Then re-create some caches
             Artisan::call('optimize');
+            Artisan::call('route:cache');
+            Artisan::call('view:cache');
         } catch (Exception $e) {
             $success = false;
             $exception = $e;

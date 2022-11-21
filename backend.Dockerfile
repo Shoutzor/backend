@@ -1,4 +1,7 @@
-FROM phpswoole/swoole:php8.1-alpine
+# Can be "production" or "local"
+ARG APP_ENV=production
+
+FROM phpswoole/swoole:php8.1-alpine AS base-production
 
 # Add OpCache
 RUN docker-php-ext-configure opcache --enable-opcache \
@@ -22,5 +25,11 @@ COPY ./.env.default .env
 # Copy PHP Project files
 COPY ./ .
 
+# For the dev version of this image we want to add
+# NPM and chokidar as these are required for octane --watch
+FROM base-production AS base-local
+RUN apk add --update npm && npm install chokidar
+
+FROM base-${APP_ENV} AS final
 # Start Swoole HTTP Server
-CMD ["php", "artisan", "octane:start", "--host=0.0.0.0"]
+CMD ["php", "artisan", "shoutzor:start", "--host=0.0.0.0"]

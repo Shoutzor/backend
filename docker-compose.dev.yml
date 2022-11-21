@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  mysql:
+    ports:
+      - "3306:3306"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  # In development mode we want to basically override all files
+  backend:
+    volumes:
+      # Required for the node_modules to stay after having built the image
+      - /code/node_modules
+      # Required to watch for updates
+      - ./app:/code/app
+      - ./config:/code/config
+      - ./bootstrap:/code/bootstrap
+      - ./graphql:/code/graphql
+      - ./lang:/code/lang
+      - ./public:/code/public
+      - ./resources:/code/resources
+      - ./routes:/code/routes
+      - ./tests:/code/tests
+      - ./vendor:/code/vendor
+      - ./storage/logs:/code/storage/logs
+    command: ["php", "artisan", "shoutzor:start", "--watch", "--host=0.0.0.0"]

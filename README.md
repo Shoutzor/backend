@@ -32,22 +32,27 @@ For local development you have 2 options (that I know of):
 
 The method I will describe below assumes you have PHP installed locally.
 
-1. In the root of the backend project, copy `.env.default` to `.env` and make sure to edit the following variables:
-    - `APP_KEY`: Run `php artisan key:generate --show` and use it's value
-    - `DB_HOST`: Set this to `127.0.0.1`
+1. Go to the root of the backend project, copy `.env.default` to `.env` and make sure to edit the following variables:
+    - `APP_KEY`: Run `php artisan key:generate --show` and put the generated output here
     - `DB_PASSWORD`: Optional. If you define a custom password here both the `backend` and `mysql` containers will use this password instead
-    - `PUSHER_HOST` If you will be doing any laravel echo development, point this to the `echo` server
-    - `PUSHER_APP_SECRET` If you will be doing any laravel echo development, define your `echo` server password here
-    
-2. Open the terminal and navigate to the root of the backend project
-3. Run `docker-compose -f docker-compose.testing.yml up mysql redis echo` 
-    - This will start the `mysql` and `redis` containers that are required for the backend to work; if you need any other containers to run, just add them to the list after `up`
-4. Open another terminal and navigate to the root of the backend project
-5. Run `composer install` to install all dependencies of the `backend`. 
+    - `PUSHER_APP_SECRET` Optional. If you define a custom password here both the `backend` and `echo` containers will use this password instead
+2. Run `composer install` to install all dependencies of the `backend`.
     - If you already did this before, you can skip this step.
-6. Run `composer install-shoutzor-dev` to install shoutzor
-    - If you want to reinstall shoutzor, you can run `composer fresh-install-shoutzor-dev` instead (⚠️ **WARNING** ⚠️ This will drop **ALL TABLES**!)
-7. You can now run `php artisan octane:start --watch` to start the backend. Any changes you make will reload the server automatically
+3. If you need to install shoutzor, follow these instructions, otherwise you can skip this step.
+   1. Open your `.env` file 
+      - change `DB_HOST` to `127.0.0.1` (there's a known-issue where `localhost` will cause the connection to fail)
+      - change `REDIS_HOST` to `127.0.0.1` or `localhost`
+   2. Run `docker-compose up mysql redis` and in a separate terminal run `composer install-shoutzor-dev`.
+      - If you want to reinstall shoutzor, you can run `composer fresh-install-shoutzor-dev` instead (⚠️ **WARNING** ⚠️ This will drop **ALL TABLES**!)
+   3. If the installation completes, open your `.env` and change:
+      - `DB_HOST` back to `mysql`
+      - `REDIS_HOST` back to `redis`
+   4. You can now go back to the running `docker-compose` command and hit `CTRL + C` to shut down those containers.
+4. To start the full backend, you can now run `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up` 
+    - Building the images might take a while
+    - This will start all required services for the `backend` and `worker` to function. After those have started, the `backend` and `worker` will be started too.
+    - Keep in mind the `worker` is unable to restart automatically when a file is changed. You will have to restart this container manually.
+    - The `backend` will be watching for changes and restart automatically.
 
 ## Composer commands:
 
