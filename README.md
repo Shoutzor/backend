@@ -43,7 +43,8 @@ The method I will describe below assumes you have PHP installed locally.
       - change `DB_HOST` to `127.0.0.1` (there's a known-issue where `localhost` will cause the connection to fail)
       - change `REDIS_HOST` to `127.0.0.1` or `localhost`
    2. Run `docker-compose up mysql redis` and in a separate terminal run `composer install-shoutzor-dev`.
-      - If you want to reinstall shoutzor, you can run `composer fresh-install-shoutzor-dev` instead (⚠️ **WARNING** ⚠️ This will drop **ALL TABLES**!)
+      - If you want to reinstall shoutzor, you can run `composer fresh-install-shoutzor-dev` instead\
+        (⚠️ **WARNING** ⚠️ This will drop **ALL TABLES**!)
    3. If the installation completes, open your `.env` and change:
       - `DB_HOST` back to `mysql`
       - `REDIS_HOST` back to `redis`
