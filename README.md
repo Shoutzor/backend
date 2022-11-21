@@ -66,11 +66,12 @@ The method I will describe below assumes you have PHP installed locally.
 | `composer add-mock-data`              | Generates and adds mock data to the database using `DevelopmentSeeder` |
 
 ## Building & Using the docker container
+
 1. run `composer install` on your local machine
     - For production use `composer install --no-dev`
 2. Now you can build & run the dockerfile
     - It's recommended to perform all actions using `docker-compose`. \
-    You can execute commands via `docker-compose -f docker-compose.testing.yml run backend your_command_here` where `your_command_here` will be executed on the backend container.\
+    You can execute commands via `docker-compose run backend your_command_here` where `your_command_here` will be executed on the backend container.\
     For more information you can check the [docker-compose documentation](https://docs.docker.com/compose/).
 3. Make sure to configure the environment variables before running the containers
     - No `APP_KEY` yet? Run `php artisan key:generate --show` and use it's value
