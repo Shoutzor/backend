@@ -2,33 +2,25 @@
 
 namespace App\Console\Commands;
 
-use \Exception;
-use App\Exceptions\ShoutzorInstallerException;
-use App\Exceptions\FormValidationException;
-use App\HealthCheck\HealthCheckManager;
 use App\Installer\Installer;
-use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
+use Laravel\Octane\Commands\StartCommand as OctaneStartCommand;
 
 /**
  * Wrapper function for octane:start
  * Docker containers can be finicky with config caches.
+ *
+ * This function is only needed for development environments where the
+ * backend docker container will be watching for changes.
  */
-class StartShoutzor extends Command
+class StartShoutzor extends OctaneStartCommand
 {
-    /**
-     * The name and signature of the console command.
-     * @var string
-     */
-    protected $signature = 'shoutzor:start {--watch} {--host=0.0.0.0}';
-
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Starts Shoutz0r';
+    public $description = 'Starts the octane server but resets the config cache first';
 
     /**
      * Instance of the Installer class
@@ -53,15 +45,12 @@ class StartShoutzor extends Command
      */
     public function handle()
     {
-        $this->line('Shoutz0r');
+        $this->line('Starting Shoutz0r');
 
-        $this->installer = new Installer();
-        $this->installer->optimizeInstall();
+        $this->line('Clearing config cache');
+        Artisan::call('config:clear');
 
-        # Start the server
-        Artisan::call('octane:start', [
-            '--watch' => $this->option('watch'),
-            '--host' => $this->option('host')
-        ]);
+        $this->line('Starting the Octane Swoole server');
+        return $this->startSwooleServer();
     }
 }

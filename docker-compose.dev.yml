@@ -25,4 +25,4 @@ services:
       - ./tests:/code/tests
       - ./vendor:/code/vendor
       - ./storage/logs:/code/storage/logs
-    command: ["php", "artisan", "shoutzor:start", "--watch", "--host=0.0.0.0"]
+    command: ["php", "artisan", "octane:start", "--watch", "--host=0.0.0.0"]

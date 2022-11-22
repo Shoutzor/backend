@@ -30,6 +30,8 @@ COPY ./ .
 FROM base-production AS base-local
 RUN apk add --update npm && npm install chokidar
 
+# Build the final image depending on the APP_ENV
 FROM base-${APP_ENV} AS final
+
 # Start Swoole HTTP Server
-CMD ["php", "artisan", "shoutzor:start", "--host=0.0.0.0"]
+CMD ["php", "artisan", "octane:start", "--host=0.0.0.0"]
