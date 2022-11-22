@@ -32,6 +32,9 @@ jobs:
         name: Install shoutzor
         run: composer install-shoutzor-dev
       -
+        name: Stop the mysql and redis containers
+        run: composer stop mysql redis
+      -
         name: Set Post-Install environment variables
         run: |
           echo "DB_HOST=mysql" >> $GITHUB_ENV
