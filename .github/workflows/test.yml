@@ -21,13 +21,13 @@ jobs:
         run: echo "APP_KEY=base64:3ckQfDEp2D/Gdu8CCBv1s/VjJHZs90lZV/+oyh4xWfA=" >> $GITHUB_ENV
       - 
         name: Start required containers for testing
-        run: docker compose -f docker-compose.yml up --detach mysql redis
+        run: docker compose up --detach mysql redis
       -
         name: Install shoutzor
-        run: docker compose -f docker-compose.yml run backend composer install-shoutzor-dev
+        run: docker compose run backend composer install-shoutzor-dev
       - 
         name: Run PHPUnit
-        run: docker compose -f docker-compose.yml run backend php artisan test
+        run: docker compose run backend php artisan test
 
   sonarcloud:
     name: SonarCloud

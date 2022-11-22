@@ -48,7 +48,7 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "@composer @ensure-required-local-directories-exist"
+            "@composer ensure-required-local-directories-exist"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
