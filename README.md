@@ -32,6 +32,7 @@ For local development you have 2 options (that I know of):
 
 The method I will describe below assumes you have PHP installed locally.
 
+### Install Shoutz0r
 1. Go to the root of the backend project, copy `.env.default` to `.env` and make sure to edit the following variables:
     - `APP_KEY`: Run `php artisan key:generate --show` and put the generated output here
     - `DB_PASSWORD`: Optional. If you define a custom password here both the `backend` and `mysql` containers will use this password instead
@@ -42,7 +43,7 @@ The method I will describe below assumes you have PHP installed locally.
    1. Open your `.env` file 
       - change `DB_HOST` to `127.0.0.1` (there's a known-issue where `localhost` will cause the connection to fail)
       - change `REDIS_HOST` to `127.0.0.1` or `localhost`
-   2. Run `docker compose up mysql redis` and in a separate terminal run `composer install-shoutzor-dev`.
+   2. Run `docker compose -f docker-compose.yml -f docker-compose.dev.yml up mysql redis` and in a separate terminal run `composer install-shoutzor-dev`.
       - If you want to reinstall shoutzor, you can run `composer fresh-install-shoutzor-dev` instead\
         (⚠️ **WARNING** ⚠️ This will drop **ALL TABLES**!)
    3. If the installation completes, open your `.env` and change:
@@ -54,6 +55,7 @@ The method I will describe below assumes you have PHP installed locally.
     - This will start all required services for the `backend` and `worker` to function. After those have started, the `backend` and `worker` will be started too.
     - Keep in mind the `worker` is unable to restart automatically when a file is changed. You will have to restart this container manually.
     - The `backend` will be watching for changes and restart automatically.
+5. For production environments you can run `docker compose up` instead. (Assuming shoutz0r has been installed)
 
 ## Composer commands:
 
@@ -64,23 +66,6 @@ The method I will describe below assumes you have PHP installed locally.
 | `composer install-shoutzor-dev`       | Installs shoutzor for development environments (adds mock data)        |
 | `composer fresh-install-shoutzor-dev` | ⚠️ **Drops all tables**, then installs shoutzor for development environments (adds mock data)        |
 | `composer add-mock-data`              | Generates and adds mock data to the database using `DevelopmentSeeder` |
-
-## Building & Using the docker container
-
-1. run `composer install` on your local machine
-    - For production use `composer install --no-dev`
-2. Now you can build & run the dockerfile
-    - It's recommended to perform all actions using `docker compose`. \
-    You can execute commands via `docker compose run backend your_command_here` where `your_command_here` will be executed on the backend container.\
-    For more information you can check the [docker compose documentation](https://docs.docker.com/compose/).
-3. Make sure to configure the environment variables before running the containers
-    - No `APP_KEY` yet? Run `php artisan key:generate --show` and use it's value
-    - Multiple backend containers? Make sure you configure the same `APP_KEY` for them
-    - Make sure `FRONTEND_URL` points to the correct url, should look like: `http://myurl.com`
-4. Haven't installed shoutzor yet? 
-    - Run `composer install-shoutzor-dev` on the `backend` container.
-    - For production run `composer install-shoutzor` instead.
-    - If the installation fails and throws errors about tables already existing you can either manually drop the tables or use the `fresh-install` variants of the `install` commands instead. Be aware that the `fresh-install` variants will **drop all tables** ⚠️
 
 ## Kindly supported by
 

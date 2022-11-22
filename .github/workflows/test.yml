@@ -11,11 +11,14 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Install composer packages
-        run: composer install --prefer-dist --optimize-autoloader
-      -
         name: Copy default env file
         run: cp .env.default .env
+      -
+        id: dotenv
+        uses: ./.github/actions/dotenv-action
+      -
+        name: Install composer packages
+        run: composer install --prefer-dist --optimize-autoloader
       -
         name: Set Required environment variables
         run: |
@@ -24,7 +27,7 @@ jobs:
           echo "REDIS_HOST=127.0.0.1" >> $GITHUB_ENV
       - 
         name: Start required containers for testing
-        run: docker compose up --detach mysql redis
+        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml up --detach mysql redis
       -
         name: Install shoutzor
         run: composer install-shoutzor-dev
@@ -35,7 +38,7 @@ jobs:
           echo "REDIS_HOST=redis" >> $GITHUB_ENV
       - 
         name: Run PHPUnit
-        run: docker compose run backend php artisan test
+        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml run backend php artisan test
 
   sonarcloud:
     name: SonarCloud
