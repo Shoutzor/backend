@@ -26,6 +26,9 @@ jobs:
         name: Start required containers for testing
         run: docker compose -f docker-compose.yml -f docker-compose.dev.yml up --detach mysql redis
       -
+        name: Wait for MySQL to start completely
+        run: sleep 30
+      -
         name: Install shoutzor
         run: composer install-shoutzor-dev
       -
