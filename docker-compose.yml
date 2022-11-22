@@ -92,14 +92,14 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: ./storage/app/media
+      device: "${PWD}/storage/app/media"
   # The directory where uploaded files (before they're processed) can be found
   storage_temp:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./storage/app/temp
+      device: "${PWD}/storage/app/temp"
 
 networks:
   shoutzor-backend:
