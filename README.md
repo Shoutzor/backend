@@ -42,14 +42,14 @@ The method I will describe below assumes you have PHP installed locally.
    1. Open your `.env` file 
       - change `DB_HOST` to `127.0.0.1` (there's a known-issue where `localhost` will cause the connection to fail)
       - change `REDIS_HOST` to `127.0.0.1` or `localhost`
-   2. Run `docker-compose up mysql redis` and in a separate terminal run `composer install-shoutzor-dev`.
+   2. Run `docker compose up mysql redis` and in a separate terminal run `composer install-shoutzor-dev`.
       - If you want to reinstall shoutzor, you can run `composer fresh-install-shoutzor-dev` instead\
         (⚠️ **WARNING** ⚠️ This will drop **ALL TABLES**!)
    3. If the installation completes, open your `.env` and change:
       - `DB_HOST` back to `mysql`
       - `REDIS_HOST` back to `redis`
-   4. You can now go back to the running `docker-compose` command and hit `CTRL + C` to shut down those containers.
-4. To start the full backend, you can now run `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up` 
+   4. You can now go back to the running `docker compose` command and hit `CTRL + C` to shut down those containers.
+4. To start the full backend, you can now run `docker compose -f docker compose.yml -f docker compose.dev.yml up` 
     - Building the images might take a while
     - This will start all required services for the `backend` and `worker` to function. After those have started, the `backend` and `worker` will be started too.
     - Keep in mind the `worker` is unable to restart automatically when a file is changed. You will have to restart this container manually.
@@ -70,9 +70,9 @@ The method I will describe below assumes you have PHP installed locally.
 1. run `composer install` on your local machine
     - For production use `composer install --no-dev`
 2. Now you can build & run the dockerfile
-    - It's recommended to perform all actions using `docker-compose`. \
-    You can execute commands via `docker-compose run backend your_command_here` where `your_command_here` will be executed on the backend container.\
-    For more information you can check the [docker-compose documentation](https://docs.docker.com/compose/).
+    - It's recommended to perform all actions using `docker compose`. \
+    You can execute commands via `docker compose run backend your_command_here` where `your_command_here` will be executed on the backend container.\
+    For more information you can check the [docker compose documentation](https://docs.docker.com/compose/).
 3. Make sure to configure the environment variables before running the containers
     - No `APP_KEY` yet? Run `php artisan key:generate --show` and use it's value
     - Multiple backend containers? Make sure you configure the same `APP_KEY` for them

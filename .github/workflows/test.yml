@@ -17,14 +17,22 @@ jobs:
         name: Copy default env file
         run: cp .env.default .env
       -
-        name: Set APP_KEY environment variable
-        run: echo "APP_KEY=base64:3ckQfDEp2D/Gdu8CCBv1s/VjJHZs90lZV/+oyh4xWfA=" >> $GITHUB_ENV
+        name: Set Required environment variables
+        run: |
+          echo "APP_KEY=base64:3ckQfDEp2D/Gdu8CCBv1s/VjJHZs90lZV/+oyh4xWfA=" >> $GITHUB_ENV
+          echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
+          echo "REDIS_HOST=127.0.0.1" >> $GITHUB_ENV
       - 
         name: Start required containers for testing
         run: docker compose up --detach mysql redis
       -
         name: Install shoutzor
-        run: docker compose run backend composer install-shoutzor-dev
+        run: composer install-shoutzor-dev
+      -
+        name: Set Post-Install environment variables
+        run: |
+          echo "DB_HOST=mysql" >> $GITHUB_ENV
+          echo "REDIS_HOST=redis" >> $GITHUB_ENV
       - 
         name: Run PHPUnit
         run: docker compose run backend php artisan test
