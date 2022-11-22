@@ -33,7 +33,7 @@ jobs:
         run: composer install-shoutzor-dev
       -
         name: Stop the mysql and redis containers
-        run: composer stop mysql redis
+        run: docker compose stop mysql redis
       -
         name: Set Post-Install environment variables
         run: |
