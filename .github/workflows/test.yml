@@ -14,9 +14,6 @@ jobs:
         name: Copy default env file
         run: cp .env.default .env
       -
-        id: dotenv
-        uses: ./.github/actions/dotenv-action
-      -
         name: Install composer packages
         run: composer install --prefer-dist --optimize-autoloader
       -
