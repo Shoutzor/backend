@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Log;
 
 class Installer
 {
-    private $isDev = false;
     private $isFresh = false;
 
     const CACHE_INSTALLED_KEY = 'shoutzor.installed';

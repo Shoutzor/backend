@@ -47,6 +47,9 @@
         }
     },
     "scripts": {
+        "post-install-cmd": [
+            "@composer @ensure-required-local-directories-exist"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
@@ -57,6 +60,12 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
+        ],
+        "ensure-required-local-directories-exist": [
+            "mkdir -p ./storage/app/temp",
+            "mkdir -p ./storage/app/album",
+            "mkdir -p ./storage/app/artist",
+            "mkdir -p ./storage/app/media"
         ],
         "install-shoutzor": [
             "@php artisan shoutzor:install",
