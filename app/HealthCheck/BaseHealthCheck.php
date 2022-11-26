@@ -4,7 +4,6 @@ namespace App\HealthCheck;
 
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
-use phpDocumentor\Reflection\Types\Boolean;
 
 abstract class BaseHealthCheck
 {

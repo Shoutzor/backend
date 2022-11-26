@@ -19,9 +19,10 @@ class CreateUploadTable extends Migration
                 $table->uuid('id')->primary();
                 $table->string('original_filename');
                 $table->string('filename');
-                $table->foreignUuid('uploaded_by')->constrained('users', 'id')->cascadeOnDelete();
+                $table->foreignUuid('uploaded_by')->nullable()->constrained('users')->cascadeOnDelete();
                 $table->timestamp('uploaded_at')->useCurrent();
                 $table->smallInteger('status')->unsigned();
+                $table->json('data');
             }
         );
     }

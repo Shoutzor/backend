@@ -3,6 +3,6 @@ type Upload {
     original_filename: String!
     filename: String!
     uploaded_at: DateTime!
-    uploaded_by: User @hasOne
+    uploaded_by: User! @hasOne
     status: Int!
 }

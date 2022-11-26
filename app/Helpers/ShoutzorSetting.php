@@ -69,6 +69,27 @@ class ShoutzorSetting {
     }
 
     /**
+     * Returns the minimum duration in seconds
+     */
+    public static function uploadMinimumDuration() : int {
+        return static::getSetting('upload_min_duration');
+    }
+
+    /**
+     * Returns the maximum duration in seconds
+     */
+    public static function uploadMaximumDuration() : int {
+        return static::getSetting('upload_max_duration');
+    }
+
+    /**
+     * Returns the maximum duration in seconds
+     */
+    public static function uploadAllowedExtensions() : array {
+        return static::getSetting('upload_allowed_extensions');
+    }
+
+    /**
      * if a user account requires email verification
      */
     public static function isEmailVerificationRequired() : bool {

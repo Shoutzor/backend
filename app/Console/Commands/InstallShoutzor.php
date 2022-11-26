@@ -2,14 +2,12 @@
 
 namespace App\Console\Commands;
 
-use \Exception;
+use Exception;
 use App\Exceptions\ShoutzorInstallerException;
-use App\Exceptions\FormValidationException;
 use App\HealthCheck\HealthCheckManager;
 use App\Installer\Installer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * An Artisan command allowing for command-line installation of Shoutzor.
@@ -171,7 +169,7 @@ class InstallShoutzor extends Command
 
         if ($isDev) {
             $this->info('Seeding database with the DevelopmentSeeder');
-            $this->installer->developmentSeedDatabase();
+            $stepResult = $this->installer->developmentSeedDatabase();
             if ($stepResult->succeeded() === false) {
                 throw new ShoutzorInstallerException("Installation step failed. Reason: " . $stepResult->getOutput());
             }
@@ -204,20 +202,8 @@ class InstallShoutzor extends Command
             $this->info("SQL Login success!");
             return true;
         } else {
-            // Check if it's a formValidation exception, or regular exception
-            if ($step->getException() instanceof FormValidationException) {
-                // $errors will now contain formValidationFieldError[] from the exception
-                $errors = $step->getException()->getErrors();
-
-                // Convert the array of formValidationFieldError objects into an array
-                foreach ($errors as $e) {
-                    $this->error($e->getField() . ": " . $e->getMessage());
-                }
-            } else {
-                // Configuration failed, display error and restart the loop
-                $this->error("SQL Login failed, reason: " . $step->getOutput());
-            }
-
+            // Configuration failed, display error and restart the loop
+            $this->error("SQL Login failed, reason: " . $step->getOutput());
             return false;
         }
     }

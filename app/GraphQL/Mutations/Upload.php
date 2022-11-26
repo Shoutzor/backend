@@ -3,6 +3,7 @@
 namespace App\GraphQL\Mutations;
 
 use App\Exceptions\GraphqlRequestException;
+use App\Helpers\ShoutzorSetting;
 use App\Jobs\ProcessUpload;
 use App\Models\Upload as UploadModel;
 use DanielDeWit\LighthouseSanctum\Traits\HasAuthenticatedUser;
@@ -45,17 +46,9 @@ class Upload
         $name = md5($file->getClientOriginalName());
         $ext = $file->extension();
 
-        // TODO supported media extensions should dynamically be provided by modular processing modules
-        $validExtensions = [
-            //Audio extensions
-            'mp3', 'ogg', 'wav', 'flac', 'm4a', 'wma', 'weba',
-
-            //Video is not implemented yet
-            //'webm', 'avi', 'mp4', 'mkv'
-        ];
-
-        if(!in_array($ext, $validExtensions)) {
-            throw new GraphqlRequestException('The uploaded file format is unsupported');
+        // Check if the file extension is allowed
+        if(!in_array($ext, ShoutzorSetting::uploadAllowedExtensions())) {
+            throw new GraphqlRequestException('The uploaded file extension is not allowed');
         }
 
         //Set the new filename (format: timestamp-md5hash.ext)

@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use App\Traits\UsesUUID;
+use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use \Nuwave\Lighthouse\Execution\Utils\Subscription;
 
 class Upload extends Model
 {
@@ -20,11 +23,38 @@ class Upload extends Model
     const CREATED_AT = 'uploaded_at';
     const UPDATED_AT = null;
 
-    protected $fillable = ['original_filename', 'filename', 'uploaded_by', 'status'];
+    protected $fillable = [
+        'original_filename',
+        'filename',
+        'uploaded_by',
+        'status',
+        'data' // A field containing JSON that can be used by MediaSources to store custom properties
+    ];
+
+    protected $casts = [
+        'data' => AsArrayObject::class
+    ];
+
+    protected static function boot() {
+        parent::boot();
+
+        static::updated(function(Upload $upload) {
+            Subscription::broadcast('uploadUpdated', $upload);
+        });
+
+        static::deleted(function(Upload $upload) {
+            Storage::delete($upload->getFilePath());
+            Subscription::broadcast('uploadDeleted', $upload);
+        });
+    }
 
     public function uploaded_by()
     {
         return $this->hasOne('App\Models\User', 'id', 'uploaded_by');
+    }
+
+    public function getFilePath() {
+        return storage_path('app/' . static::STORAGE_PATH . $this->filename);
     }
 
 }

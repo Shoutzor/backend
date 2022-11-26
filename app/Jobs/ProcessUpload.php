@@ -2,17 +2,22 @@
 
 namespace App\Jobs;
 
-use App\Exceptions\MediaDuplicateException;
+use App\MediaSource\Base\ProcessorPipeline;
+use App\MediaSource\Base\Processors\ProcessorError;
+use App\MediaSource\File\Processors\FileExistsProcessor;
+use App\MediaSource\File\Processors\ID3GetTitleProcessor;
+use App\MediaSource\File\Processors\MediaDurationProcessor;
+use App\MediaSource\File\Processors\MediaFileHashProcessor;
+use App\MediaSource\ProcessorItem;
+use App\Models\Media;
 use App\Models\Upload;
-use App\Processors\UploadProcessor;
-use DateTime;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Throwable;
+use Illuminate\Support\Facades\Storage;
 
 class ProcessUpload implements ShouldQueue
 {
@@ -32,7 +37,7 @@ class ProcessUpload implements ShouldQueue
      *
      * @var int
      */
-    public $backoff = 3;
+    public $backoff = 20;
 
     /**
      * Create a new job instance.
@@ -47,67 +52,102 @@ class ProcessUpload implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @param UploadProcessor $processor
      * @return void
      */
-    public function handle(UploadProcessor $processor)
+    public function handle()
     {
-        try {
-            Log::debug("Updating upload status to: processing",[$this->upload]);
+        Log::debug("Updating upload status to: processing",[$this->upload]);
 
-            //Update the status
-            $this->upload->status = Upload::STATUS_PROCESSING;
-            $this->upload->save();
+        //Update the status
+        $this->upload->status = Upload::STATUS_PROCESSING;
+        $this->upload->save();
 
-            Log::debug("Start processing upload");
+        Log::debug("Start processing upload");
 
-            $processor->parse($this->upload);
+        (new ProcessorPipeline(app()))
+            ->send(new ProcessorItem(
+                $this->upload,
+                $this->createBaseMediaObject($this->upload)
+            ))
+            ->through([
+                FileExistsProcessor::class,
+                MediaFileHashProcessor::class,
+                MediaDurationProcessor::class,
+                ID3GetTitleProcessor::class
+            ])
+            // Error caught while processing
+            ->onError(function (ProcessorError $error) {
+                $exception = $error->getException();
 
-            Log::debug("Processing successfully finished");
-        }
-        catch(Throwable $exception) {
-            Log::error("An exception occured while processing the job: " . $exception->getMessage());
+                if ($exception !== null) {
+                    Log::critical("An exception occured while processing the job: " . $exception->getMessage());
+                    error_log("An exception occured while processing the job: " . $exception->getMessage());
+                } else {
+                    Log::debug("An error returned while processing, error: " . $error->error);
 
-            // Upload Exists Exception has been thrown. Stop further processing of this job.
-            if($exception instanceof MediaDuplicateException) {
-                Log::debug("MediaExistsException thrown. Marking upload as failed (final)");
-                $this->upload->status = Upload::STATUS_FAILED_FINAL;
-            }
-            // If the # of attempts has exceeded the allowed # of tries, Stop further processing of this job.
-            elseif($this->attempts() >= $this->tries) {
-                Log::debug("Upload processing failed and # of tries exceeded. Marking upload as failed (final)");
-                $this->upload->status = Upload::STATUS_FAILED_FINAL;
-            }
-            // Update the status of the upload to failed_retry to indicate to the frontend that it has failed
-            // but will be re-attempted
-            else {
-                Log::debug("Upload processing failed. Marking upload as failed (with retry)");
-                $this->upload->status = Upload::STATUS_FAILED_RETRY;
-            }
-            $this->upload->save();
+                    // No exception set, set the exception with the error returned from processing
+                    // This exception is used when marking the job as failed.
+                    $exception = new \Exception($error->error);
+                }
 
-            // Check if the status indicates the job should be marked as failed.
-            if($this->upload->status === Upload::STATUS_FAILED_FINAL) {
-                Log::debug("Job failed, marking as failed");
+                // Upload Exists Exception has been thrown. Stop further processing of this job.
+                if ($error->rejected) {
+                    Log::debug("Upload is rejected, will not retry processing. Deleting upload");
+                    // Delete the upload object
+                    $this->upload->delete();
+                } // If the # of attempts has exceeded the allowed # of tries, Stop further processing of this job.
+                elseif ($this->attempts() >= $this->tries) {
+                    Log::debug("Number of processing tries exceeded. Marking upload as failed (final)");
+                    $this->upload->status = Upload::STATUS_FAILED_FINAL;
+                }
+                // Update the status of the upload to failed_retry to indicate to the frontend that it has failed
+                // but will be re-attempted
+                else {
+                    Log::debug("Marking upload as failed (with retry)");
+                    $this->upload->status = Upload::STATUS_FAILED_RETRY;
+                }
 
-                // Delete the current job
-                $this->fail($exception);
-            }
-            else {
-                Log::debug("Job failed, releasing back to queue");
-                // Forward the exception
-                $this->release($this->backoff);
-            }
-        }
+                if(!$error->rejected) {
+                    // Save the status
+                    $this->upload->save();
+                    $this->release($this->backoff);
+                }
+            })
+            ->then(function (ProcessorItem $item) {
+                $upload = $item->getUpload();
+                $media = $item->getMedia();
+
+                // Check if the file needs to be moved once finished
+                if ($item->moveFileOnFinish()) {
+                    Storage::move(
+                        Upload::STORAGE_PATH . $upload->filename,
+                        Media::STORAGE_PATH . $media->filename
+                    );
+                }
+
+                // Save the media instance to the database
+                $media->save();
+
+                // Delete the upload from the database
+                $upload->delete();
+
+                Log::debug("Processing successfully finished");
+            });
     }
 
     /**
-     * Determine the time at which the job should timeout.
-     *
-     * @return DateTime
+     * Create the base media object for the uploaded file
+     * This method only sets some default properties and does not do any saniziting or processing yet.
+     * @param Upload $upload
+     * @return Media
      */
-    public function retryUntil()
+    private function createBaseMediaObject(Upload $upload): Media
     {
-        return now()->addMinutes(5);
+        return new Media([
+            'title' => '',
+            'filename' => $upload->filename,
+            'duration' => 0,
+            'is_video' => false
+        ]);
     }
 }

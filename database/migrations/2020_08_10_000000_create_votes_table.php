@@ -16,8 +16,8 @@ class CreateVotesTable extends Migration
         Schema::create(
             'votes',
             function (Blueprint $table) {
-                $table->foreignUuid('request_id')->references('id')->on('requests')->onDelete('cascade');
-                $table->foreignUuid('user_id')->references('id')->on('users')->onDelete('cascade');
+                $table->foreignUuid('request_id')->constrained('requests')->cascadeOnDelete();
+                $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
                 $table->primary(['request_id', 'user_id'], 'votes_request_id_user_id_primary');
                 $table->timestamp('voted_at')->useCurrent();
             }

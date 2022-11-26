@@ -26,3 +26,17 @@ services:
       - ./vendor:/code/vendor
       - ./storage/logs:/code/storage/logs
     command: ["php", "artisan", "octane:start", "--watch", "--host=0.0.0.0"]
+
+  worker:
+    volumes:
+      - ./app:/code/app
+      - ./config:/code/config
+      - ./bootstrap:/code/bootstrap
+      - ./graphql:/code/graphql
+      - ./lang:/code/lang
+      - ./public:/code/public
+      - ./resources:/code/resources
+      - ./routes:/code/routes
+      - ./tests:/code/tests
+      - ./vendor:/code/vendor
+      - ./storage/logs:/code/storage/logs

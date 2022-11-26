@@ -13,6 +13,9 @@ RUN apk add --no-cache pcre-dev $PHPIZE_DEPS \
         && docker-php-ext-enable redis.so \
         && apk del --purge pcre-dev $PHPIZE_DEPS
 
+# Install FFMPEG
+RUN apk add --no-cache ffmpeg
+
 # Use the default production configuration
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
