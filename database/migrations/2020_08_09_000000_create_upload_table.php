@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUploadTable extends Migration
+class MediaSourceManagerCreateUploadTable extends Migration
 {
     /**
      * Run the migrations.
@@ -17,6 +17,7 @@ class CreateUploadTable extends Migration
             'uploads',
             function (Blueprint $table) {
                 $table->uuid('id')->primary();
+                $table->string('source');
                 $table->string('original_filename');
                 $table->string('filename');
                 $table->foreignUuid('uploaded_by')->nullable()->constrained('users')->cascadeOnDelete();

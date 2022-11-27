@@ -9,10 +9,9 @@ use App\HealthCheck\SymlinkHealthCheck;
 use App\HealthCheck\WritableDirsHealthCheck;
 use App\HealthCheck\WritableFilesHealthCheck;
 use App\Helpers\Filesystem;
-use App\MediaSource\MediaSource;
+use App\MediaSource\File\MediaSource;
 use App\MediaSource\MediaSourceManager;
 use App\Models\Upload;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -42,10 +41,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Register the default media filetype sources (local audio file & local video file)
+        // Register the default media filetype sources
         // Other sources can be added as a module (ie: youtube, spotify, etc.)
-        $this->mediaSourceManager->registerSource(new MediaSource('audio', 'audio file', ''));
-        $this->mediaSourceManager->registerSource(new MediaSource('video', 'video file', ''));
+        $this->mediaSourceManager->registerSource(new MediaSource());
 
         //Register the system healthchecks
         $this->healthCheckManager->registerHealthcheck(

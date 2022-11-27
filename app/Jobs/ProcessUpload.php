@@ -2,14 +2,9 @@
 
 namespace App\Jobs;
 
-use App\Helpers\ShoutzorSetting;
-use App\MediaSource\AcoustID\Processors\IdentifyMusicProcessor;
 use App\MediaSource\Base\ProcessorPipeline;
 use App\MediaSource\Base\Processors\ProcessorError;
-use App\MediaSource\File\Processors\FileExistsProcessor;
-use App\MediaSource\File\Processors\ID3GetTitleProcessor;
-use App\MediaSource\File\Processors\MediaDurationProcessor;
-use App\MediaSource\File\Processors\MediaFileHashProcessor;
+use App\MediaSource\MediaSourceManager;
 use App\MediaSource\ProcessorItem;
 use App\Models\Media;
 use App\Models\Upload;
@@ -21,6 +16,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class ProcessUpload implements ShouldQueue
 {
@@ -33,14 +29,14 @@ class ProcessUpload implements ShouldQueue
      *
      * @var int
      */
-    public $tries = 3;
+    public int $tries = 3;
 
     /**
      * The number of seconds to wait before retrying the job.
      *
      * @var int
      */
-    public $backoff = 20;
+    public int $backoff = 20;
 
     /**
      * Create a new job instance.
@@ -56,6 +52,7 @@ class ProcessUpload implements ShouldQueue
      * Execute the job.
      *
      * @return void
+     * @throws Throwable
      */
     public function handle()
     {
@@ -65,29 +62,21 @@ class ProcessUpload implements ShouldQueue
         $this->upload->status = Upload::STATUS_PROCESSING;
         $this->upload->save();
 
+        $mediaSource = app(MediaSourceManager::class)->getSource($this->upload->source);
+
         Log::debug("Start processing upload");
 
+        // Start a DB transaction to rollback any changes if anything goes wrong.
         DB::beginTransaction();
 
         try {
+            // Start processing the upload
             (new ProcessorPipeline(app()))
                 ->send(new ProcessorItem(
                     $this->upload,
                     $this->createBaseMediaObject($this->upload)
                 ))
-                // TODO These should all be provided based on the MediaSource type from the Upload object
-                ->through([
-                    FileExistsProcessor::class,
-                    MediaFileHashProcessor::class,
-                    MediaDurationProcessor::class,
-                    // Based on whether AcoustID is enabled we want to identify
-                    // a song based on the audio fingerprinting vs. the ID3 tags
-                    (
-                        ShoutzorSetting::getSetting('acoustid_enabled') ?
-                            ID3GetTitleProcessor::class :
-                            IdentifyMusicProcessor::class
-                    )
-                ])
+                ->through($mediaSource->getProcessors())
                 // Error caught while processing
                 ->onError(function (ProcessorError $error) {
                     // Perform a DB rollback first
@@ -101,27 +90,23 @@ class ProcessUpload implements ShouldQueue
                         Log::critical("An exception occured while processing the job: " . $exception->getMessage());
                         error_log("An exception occured while processing the job: " . $exception->getMessage());
                     } else {
-                        Log::debug("An error returned while processing, error: " . $error->error);
-
-                        // No exception set, set the exception with the error returned from processing
-                        // This exception is used when marking the job as failed.
-                        $exception = new \Exception($error->error);
+                        Log::info("An error returned while processing, error: " . $error->error);
                     }
 
                     // Upload Exists Exception has been thrown. Stop further processing of this job.
                     if ($error->rejected) {
-                        Log::debug("Upload is rejected, will not retry processing. Deleting upload");
+                        Log::info("Upload is rejected, will not retry processing. Deleting upload");
                         // Delete the upload object
                         $this->upload->delete();
                     } // If the # of attempts has exceeded the allowed # of tries, Stop further processing of this job.
                     elseif ($this->attempts() >= $this->tries) {
-                        Log::debug("Number of processing tries exceeded. Marking upload as failed (final)");
+                        Log::info("Number of processing tries exceeded. Marking upload as failed (final)");
                         $this->upload->status = Upload::STATUS_FAILED_FINAL;
                     }
                     // Update the status of the upload to failed_retry to indicate to the frontend that it has failed
                     // but will be re-attempted
                     else {
-                        Log::debug("Marking upload as failed (with retry)");
+                        Log::info("Marking upload as failed (with retry)");
                         $this->upload->status = Upload::STATUS_FAILED_RETRY;
                     }
 
@@ -156,7 +141,7 @@ class ProcessUpload implements ShouldQueue
                     Log::debug("Processing successfully finished");
                 });
         }
-        catch(\Throwable $e) {
+        catch(Throwable $e) {
             DB::rollBack();
             throw $e;
         }

@@ -3,6 +3,7 @@
 namespace App\MediaSource;
 
 use App\Exceptions\MediaSourceDuplicateException;
+use App\MediaSource\Base\MediaSource;
 
 class MediaSourceManager
 {

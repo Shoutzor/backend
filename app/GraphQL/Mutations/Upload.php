@@ -61,6 +61,7 @@ class Upload
         $upload = UploadModel::create([
             'original_filename' => strip_tags($file->getClientOriginalName()),
             'filename' => $newName,
+            'source' => 'file',
             'uploaded_by' => $user->id,
             'status' => UploadModel::STATUS_QUEUED
         ]);

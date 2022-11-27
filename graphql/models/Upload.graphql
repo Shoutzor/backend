@@ -2,6 +2,7 @@ type Upload {
     id: ID!
     original_filename: String!
     filename: String!
+    source: String!
     uploaded_at: DateTime!
     uploaded_by: User! @hasOne
     status: Int!

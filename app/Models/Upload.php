@@ -26,6 +26,7 @@ class Upload extends Model
     protected $fillable = [
         'original_filename',
         'filename',
+        'source',
         'uploaded_by',
         'status',
         'data' // A field containing JSON that can be used by MediaSources to store custom properties
