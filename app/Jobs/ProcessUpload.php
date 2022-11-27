@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Helpers\ShoutzorSetting;
+use App\MediaSource\AcoustID\Processors\IdentifyMusicProcessor;
 use App\MediaSource\Base\ProcessorPipeline;
 use App\MediaSource\Base\Processors\ProcessorError;
 use App\MediaSource\File\Processors\FileExistsProcessor;
@@ -16,6 +18,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -64,75 +67,99 @@ class ProcessUpload implements ShouldQueue
 
         Log::debug("Start processing upload");
 
-        (new ProcessorPipeline(app()))
-            ->send(new ProcessorItem(
-                $this->upload,
-                $this->createBaseMediaObject($this->upload)
-            ))
-            ->through([
-                FileExistsProcessor::class,
-                MediaFileHashProcessor::class,
-                MediaDurationProcessor::class,
-                ID3GetTitleProcessor::class
-            ])
-            // Error caught while processing
-            ->onError(function (ProcessorError $error) {
-                $exception = $error->getException();
+        DB::beginTransaction();
 
-                if ($exception !== null) {
-                    Log::critical("An exception occured while processing the job: " . $exception->getMessage());
-                    error_log("An exception occured while processing the job: " . $exception->getMessage());
-                } else {
-                    Log::debug("An error returned while processing, error: " . $error->error);
+        try {
+            (new ProcessorPipeline(app()))
+                ->send(new ProcessorItem(
+                    $this->upload,
+                    $this->createBaseMediaObject($this->upload)
+                ))
+                // TODO These should all be provided based on the MediaSource type from the Upload object
+                ->through([
+                    FileExistsProcessor::class,
+                    MediaFileHashProcessor::class,
+                    MediaDurationProcessor::class,
+                    // Based on whether AcoustID is enabled we want to identify
+                    // a song based on the audio fingerprinting vs. the ID3 tags
+                    (
+                        ShoutzorSetting::getSetting('acoustid_enabled') ?
+                            ID3GetTitleProcessor::class :
+                            IdentifyMusicProcessor::class
+                    )
+                ])
+                // Error caught while processing
+                ->onError(function (ProcessorError $error) {
+                    // Perform a DB rollback first
+                    DB::rollBack();
 
-                    // No exception set, set the exception with the error returned from processing
-                    // This exception is used when marking the job as failed.
-                    $exception = new \Exception($error->error);
-                }
+                    // Get the exception from the error (if any)
+                    $exception = $error->getException();
 
-                // Upload Exists Exception has been thrown. Stop further processing of this job.
-                if ($error->rejected) {
-                    Log::debug("Upload is rejected, will not retry processing. Deleting upload");
-                    // Delete the upload object
-                    $this->upload->delete();
-                } // If the # of attempts has exceeded the allowed # of tries, Stop further processing of this job.
-                elseif ($this->attempts() >= $this->tries) {
-                    Log::debug("Number of processing tries exceeded. Marking upload as failed (final)");
-                    $this->upload->status = Upload::STATUS_FAILED_FINAL;
-                }
-                // Update the status of the upload to failed_retry to indicate to the frontend that it has failed
-                // but will be re-attempted
-                else {
-                    Log::debug("Marking upload as failed (with retry)");
-                    $this->upload->status = Upload::STATUS_FAILED_RETRY;
-                }
+                    // Check if an exception was returned
+                    if ($exception !== null) {
+                        Log::critical("An exception occured while processing the job: " . $exception->getMessage());
+                        error_log("An exception occured while processing the job: " . $exception->getMessage());
+                    } else {
+                        Log::debug("An error returned while processing, error: " . $error->error);
 
-                if(!$error->rejected) {
-                    // Save the status
-                    $this->upload->save();
-                    $this->release($this->backoff);
-                }
-            })
-            ->then(function (ProcessorItem $item) {
-                $upload = $item->getUpload();
-                $media = $item->getMedia();
+                        // No exception set, set the exception with the error returned from processing
+                        // This exception is used when marking the job as failed.
+                        $exception = new \Exception($error->error);
+                    }
 
-                // Check if the file needs to be moved once finished
-                if ($item->moveFileOnFinish()) {
-                    Storage::move(
-                        Upload::STORAGE_PATH . $upload->filename,
-                        Media::STORAGE_PATH . $media->filename
-                    );
-                }
+                    // Upload Exists Exception has been thrown. Stop further processing of this job.
+                    if ($error->rejected) {
+                        Log::debug("Upload is rejected, will not retry processing. Deleting upload");
+                        // Delete the upload object
+                        $this->upload->delete();
+                    } // If the # of attempts has exceeded the allowed # of tries, Stop further processing of this job.
+                    elseif ($this->attempts() >= $this->tries) {
+                        Log::debug("Number of processing tries exceeded. Marking upload as failed (final)");
+                        $this->upload->status = Upload::STATUS_FAILED_FINAL;
+                    }
+                    // Update the status of the upload to failed_retry to indicate to the frontend that it has failed
+                    // but will be re-attempted
+                    else {
+                        Log::debug("Marking upload as failed (with retry)");
+                        $this->upload->status = Upload::STATUS_FAILED_RETRY;
+                    }
 
-                // Save the media instance to the database
-                $media->save();
+                    // If the upload wasn't rejected, update the upload status
+                    if (!$error->rejected) {
+                        // Save the status
+                        $this->upload->save();
+                        $this->release($this->backoff);
+                    }
+                })
+                ->then(function (ProcessorItem $item) {
+                    $upload = $item->getUpload();
+                    $media = $item->getMedia();
 
-                // Delete the upload from the database
-                $upload->delete();
+                    // Check if the file needs to be moved once finished
+                    if ($item->moveFileOnFinish()) {
+                        Storage::move(
+                            Upload::STORAGE_PATH . $upload->filename,
+                            Media::STORAGE_PATH . $media->filename
+                        );
+                    }
 
-                Log::debug("Processing successfully finished");
-            });
+                    // Save the media instance to the database
+                    $media->save();
+
+                    // Delete the upload from the database
+                    $upload->delete();
+
+                    // Commit all changes to the database
+                    DB::commit();
+
+                    Log::debug("Processing successfully finished");
+                });
+        }
+        catch(\Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**

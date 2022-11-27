@@ -16,9 +16,9 @@ class Media extends Model
     protected $table = 'media';
     protected $fillable = ['title', 'filename', 'hash', 'duration', 'is_video', 'image', 'source', 'album_id'];
 
-    public function album()
+    public function albums()
     {
-        return $this->belongsTo('App\Models\Album');
+        return $this->belongsToMany('App\Models\Album');
     }
 
     public function artists()

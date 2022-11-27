@@ -113,6 +113,28 @@ class CreateSettingsTable extends Migration
                 'order' => 40,
                 'validation' => '',
                 'readonly' => false
+            ],
+            [
+                'key' => 'acoustid_enabled',
+                'value' => $this->toValue(false),
+                'type' => 'boolean',
+                'name' => 'Enable AcoustID Audio Fingerprinting',
+                'description' => 'Whether AcoustID Audio Fingerprinting should be used to identify whats uploaded',
+                'group' => 'uploads',
+                'order' => 50,
+                'validation' => '',
+                'readonly' => false
+            ],
+            [
+                'key' => 'acoustid_apikey',
+                'value' => $this->toValue(''),
+                'type' => 'string',
+                'name' => 'AcoustID API Key',
+                'description' => 'The AcoustID API Key to use',
+                'group' => 'uploads',
+                'order' => 51,
+                'validation' => '',
+                'readonly' => false
             ]
         ]);
     }

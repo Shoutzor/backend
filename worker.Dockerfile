@@ -16,6 +16,9 @@ RUN apk add --no-cache pcre-dev $PHPIZE_DEPS \
 # Install FFMPEG
 RUN apk add --no-cache ffmpeg
 
+# Install chromaprint / fpcalc (used by AcoustID for Audio Fingerprinting)
+RUN apk add --no-cache chromaprint
+
 # Use the default production configuration
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
@@ -32,4 +35,4 @@ COPY ./.env.default .env
 COPY ./ .
 
 # Start the Queue Worker
-CMD ["php", "artisan", "queue:work", "--queue=uploads"]
+CMD ["php", "artisan", "queue:work", "--queue=uploads,agent"]

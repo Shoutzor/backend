@@ -21,7 +21,7 @@ class ShoutzorSetting {
      * @param string $key
      * @return mixed
      */
-    private static function getSetting($key): mixed
+    public static function getSetting($key): mixed
     {
         $cachedObj = Cache::get(ShoutzorSetting::CACHE_KEY_PREFIX . $key);
 

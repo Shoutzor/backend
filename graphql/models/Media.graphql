@@ -5,6 +5,6 @@ type Media implements HasArtists & HasImage {
     is_video: Boolean!
     image: String
     source: String!
-    album: Album @belongsTo
+    album: [Album!]! @belongsToMany
     artists: [Artist!]! @belongsToMany
 }

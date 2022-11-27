@@ -40,3 +40,4 @@ services:
       - ./tests:/code/tests
       - ./vendor:/code/vendor
       - ./storage/logs:/code/storage/logs
+    command: ["php", "artisan", "queue:listen", "--queue=uploads,agent"]
