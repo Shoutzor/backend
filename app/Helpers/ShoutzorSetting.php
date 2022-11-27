@@ -28,12 +28,12 @@ class ShoutzorSetting {
         // Check if the item exists in cache
         if($cachedObj === null) {
             // Item does not exist in cache yet, fetch & store
-            $cachedObj = self::createCacheData(Setting::findOrFail($key));
+            $cachedObj = static::createCacheData(Setting::findOrFail($key));
             static::updateCache($key, $cachedObj);
         }
 
         // Return the value
-        return self::parseCacheData($cachedObj);
+        return static::parseCacheData($cachedObj);
     }
 
     /**

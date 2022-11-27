@@ -2,7 +2,6 @@
 
 namespace App\MediaSource\File;
 
-use App\Helpers\ShoutzorSetting;
 use App\MediaSource\AcoustID\Processors\IdentifyMusicProcessor;
 use App\MediaSource\Base\MediaSource as BaseMediaSource;
 use App\MediaSource\File\Processors\FileExistsProcessor;
@@ -23,13 +22,8 @@ class MediaSource extends BaseMediaSource
             FileExistsProcessor::class,
             MediaFileHashProcessor::class,
             MediaDurationProcessor::class,
-            // Based on whether AcoustID is enabled we want to identify
-            // a song based on the audio fingerprinting vs. the ID3 tags
-            (
-            ShoutzorSetting::getSetting('acoustid_enabled') ?
-                ID3GetTitleProcessor::class :
-                IdentifyMusicProcessor::class
-            )
+            ID3GetTitleProcessor::class,
+            IdentifyMusicProcessor::class
         ];
     }
 
