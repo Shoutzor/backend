@@ -14,7 +14,7 @@
 
 ## Introduction
 
-This is the backend of shoutz0r, consisting of both the API and the Queue worker.
+This is the backend of Shoutz0r, consisting of both the API and the Queue worker.
 
 Built using Laravel, GraphQL (Lighthouse) & Apollo.
 
@@ -57,10 +57,9 @@ The method I will describe below assumes you have PHP installed locally.
 To start the full backend, you can now run `docker compose -f docker compose.yml -f docker compose.dev.yml up` 
  - Building the images might take a while
  - This will start all required services for the `backend` and `worker` to function. After those have started, the `backend` and `worker` will be started too.
- - Keep in mind the `worker` is unable to restart automatically when a file is changed. You will have to restart this container manually.
- - The `backend` will be watching for changes and restart automatically.
+ - The `backend` and `worker` will be watching for changes and restart automatically.
 
- - For production environments you can run `docker compose up` instead. (Assuming shoutz0r has been installed)
+ - For production environments you can run `docker compose up` instead. (Assuming Shoutz0r has been installed)
 
 ## Composer commands:
 
