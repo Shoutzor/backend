@@ -24,7 +24,7 @@ class MediaFactory extends Factory
     )
     {
         parent::__construct($count, $states, $has, $for, $afterMaking, $afterCreating, $connection);
-        $this->mediaImageLocation = storage_path('app/public/media');
+        $this->mediaImageLocation = storage_path('app/' . Media::STORAGE_PATH);
     }
 
     private function coinflip()
