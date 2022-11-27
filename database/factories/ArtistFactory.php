@@ -24,7 +24,7 @@ class ArtistFactory extends Factory
     {
         parent::__construct($count, $states, $has, $for, $afterMaking, $afterCreating, $connection);
 
-        $this->artistImageLocation = storage_path('app/public/artist');
+        $this->artistImageLocation = storage_path('app/' . Artist::STORAGE_PATH);
     }
 
     public function definition()

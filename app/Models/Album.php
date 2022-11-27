@@ -11,6 +11,8 @@ class Album extends Model
 {
     use UsesUUID, HasFactory;
 
+    const STORAGE_PATH = 'album/';
+
     /**
      * Indicates if the model should be timestamped.
      *

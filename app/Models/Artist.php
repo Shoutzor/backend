@@ -11,6 +11,8 @@ class Artist extends Model
 {
     use UsesUUID, HasFactory;
 
+    const STORAGE_PATH = 'artist/';
+
     public function albums()
     {
         return $this->belongsToMany('App\Models\Album');
