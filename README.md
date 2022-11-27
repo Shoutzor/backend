@@ -22,29 +22,16 @@ API Docs can be found over at [shoutzor.com](https://shoutzor.com/phpdocs/app/ma
 Documentation has yet to be written. Feel free to ask any questions in the `discussions`.
 
 ## Development
-
-For local development you have 2 options (that I know of):
-- Install PHP (8.1) locally
-    - With the MySQL driver
-    - With the Redis driver
-    - With the [OpenSwoole extension](https://openswoole.com/docs/get-started/installation)
-- Mount code directory to the backend container
-
-The method I will describe below assumes you have PHP installed locally.
-
-### Preparations
-1. Go to the root of the backend project, copy `.env.default` to `.env` and make sure to edit the following variables:
-   - `APP_KEY`: Run `php artisan key:generate --show` and put the generated output here
-   - `DB_PASSWORD`: Optional. If you define a custom password here both the `backend` and `mysql` containers will use this password instead
-   - `PUSHER_APP_SECRET` Optional. If you define a custom password here both the `backend` and `echo` containers will use this password instead
-2. Run `composer install` to install all dependencies of the `backend`.
-   - If you already did this before, you can skip this step.
+The steps listed below assume you have PHP installed locally.
 
 ### Install Shoutz0r
 1. Open your `.env` file 
+   - Set `APP_KEY`: Run `php artisan key:generate --show` and put the generated output here
    - change `DB_HOST` to `127.0.0.1` (there's a known-issue where `localhost` will cause the connection to fail)
    - change `REDIS_HOST` to `127.0.0.1` or `localhost`
 2. Run `docker compose -f docker-compose.yml -f docker-compose.dev.yml up mysql redis` and wait for MySQL to become ready.
+3. Run `composer install` to install all dependencies of the `backend`.
+    - If you already did this before, you can skip this step.
 3. In a separate terminal run `composer install-shoutzor-dev`.
    - If you want to reinstall shoutzor, you can run `composer fresh-install-shoutzor-dev` instead\
      (⚠️ **WARNING** ⚠️ This will drop **ALL TABLES**!)

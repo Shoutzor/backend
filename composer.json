@@ -56,8 +56,7 @@
             "@php artisan package:discover --ansi"
         ],
         "post-update-cmd": [
-            "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
-            "@php artisan lighthouse:ide-helper"
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
@@ -78,15 +77,16 @@
         ],
         "install-shoutzor-dev": [
             "@php artisan shoutzor:install --dev",
-            "@composer optimize-shoutzor"
+            "@composer optimize-shoutzor",
+            "@php artisan lighthouse:ide-helper"
         ],
         "fresh-install-shoutzor-dev": [
             "@php artisan shoutzor:install --dev --fresh",
-            "@composer optimize-shoutzor"
+            "@composer optimize-shoutzor",
+            "@php artisan lighthouse:ide-helper"
         ],
         "optimize-shoutzor": [
-            "@php artisan optimize",
-            "@php artisan view:cache"
+            "@php artisan optimize"
         ],
         "add-mock-data": [
             "@php artisan db:seed --class=DevelopmentSeeder",

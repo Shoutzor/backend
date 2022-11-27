@@ -14,20 +14,20 @@ jobs:
         name: Copy default env file
         run: cp .env.default .env
       -
-        name: Install composer packages
-        run: composer install --prefer-dist --optimize-autoloader
-      -
         name: Set Required environment variables
         run: |
           echo "APP_KEY=base64:3ckQfDEp2D/Gdu8CCBv1s/VjJHZs90lZV/+oyh4xWfA=" >> $GITHUB_ENV
           echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
           echo "REDIS_HOST=127.0.0.1" >> $GITHUB_ENV
-      - 
+      -
         name: Start required containers for testing
         run: docker compose -f docker-compose.yml -f docker-compose.dev.yml up --detach mysql redis
       -
         name: Wait for MySQL to start completely
         run: sleep 30
+      -
+        name: Install composer packages
+        run: composer install --prefer-dist --optimize-autoloader
       -
         name: Install shoutzor
         run: composer install-shoutzor-dev
