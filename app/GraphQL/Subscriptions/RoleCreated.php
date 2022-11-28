@@ -29,6 +29,6 @@ final class RoleCreated extends GraphQLSubscription
      */
     public function filter(Subscriber $subscriber, $root): bool
     {
-        return true;
+        return $subscriber->context->user->hasPermissionTo('admin.role.list');
     }
 }

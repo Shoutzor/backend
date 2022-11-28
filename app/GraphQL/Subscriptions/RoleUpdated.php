@@ -30,6 +30,9 @@ final class RoleUpdated extends GraphQLSubscription
      */
     public function filter(Subscriber $subscriber, $root): bool
     {
+        // TODO implement filter
+        // if user has admin.role.list permission OR has the role
+        // OR if it's the guest role
         return true;
     }
 }

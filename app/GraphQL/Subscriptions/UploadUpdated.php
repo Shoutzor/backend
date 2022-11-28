@@ -21,7 +21,7 @@ final class UploadUpdated extends GraphQLSubscription
      */
     public function authorize(Subscriber $subscriber, Request $request): bool
     {
-        return true;
+        return !empty($subscriber->context?->user);
     }
 
     /**
@@ -33,6 +33,7 @@ final class UploadUpdated extends GraphQLSubscription
      */
     public function filter(Subscriber $subscriber, $root): bool
     {
-        return true;
+        $user = $subscriber->context?->user;
+        return $user && $root->uploaded_by === $user->id;
     }
 }
