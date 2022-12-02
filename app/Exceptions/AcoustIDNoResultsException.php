@@ -2,6 +2,4 @@
 
 namespace App\Exceptions;
 
-use Exception;
-
-class AcoustIDNoResultsException extends Exception {}
+class AcoustIDNoResultsException extends AcoustIDException {}

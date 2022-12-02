@@ -12,13 +12,14 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
-class ProcessUpload implements ShouldQueue
+class MediaInfoAgent implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -29,24 +30,38 @@ class ProcessUpload implements ShouldQueue
      *
      * @var int
      */
-    public int $tries = 3;
+    public int $tries = 1;
 
     /**
      * The number of seconds to wait before retrying the job.
      *
      * @var int
      */
-    public int $backoff = 20;
+    public int $backoff = 60;
 
     /**
-     * Create a new job instance.
+     * Get the middleware the job should pass through.
      *
-     * @param Upload $upload
+     * @return array
      */
-    public function __construct(Upload $upload)
+    public function middleware()
     {
-        $this->upload = $upload;
+        return [
+            /*
+             * We don't want to release any new queued jobs since this job
+             * can take quite a while depending on how much media there is.
+             * Instead, a @TODO is to check if the job is still locked, and
+             * allow an administrator to kill the current job and re-start it.
+             */
+            (new WithoutOverlapping(1))->dontRelease()
+        ];
     }
+
+    /**
+     * Create a new job instance
+     */
+    public function __construct()
+    { }
 
     /**
      * Execute the job.
@@ -56,18 +71,7 @@ class ProcessUpload implements ShouldQueue
      */
     public function handle()
     {
-        Log::debug("Updating upload status to: processing",[$this->upload]);
-
-        //Update the status
-        $this->upload->status = Upload::STATUS_PROCESSING;
-        $this->upload->save();
-
-        $mediaSource = app(MediaSourceManager::class)->getSource($this->upload->source);
-
-        Log::debug("Start processing upload");
-
-        // Start a DB transaction to rollback any changes if anything goes wrong.
-        DB::beginTransaction();
+        Log::debug("Started media info agent");
 
         try {
             // Start processing the upload
@@ -76,7 +80,9 @@ class ProcessUpload implements ShouldQueue
                     $this->upload,
                     $this->createBaseMediaObject($this->upload)
                 ))
-                ->through($mediaSource->getProcessors())
+                ->through([
+                    // @TODO get this array of agent from a provider
+                ])
                 // Error caught while processing
                 ->onError(function (ProcessorError $error) {
                     // Perform a DB rollback first
@@ -87,10 +93,7 @@ class ProcessUpload implements ShouldQueue
 
                     // Check if an exception was returned
                     if ($exception !== null) {
-                        Log::critical("An exception occured while processing the job", [
-                            'exception' => $exception->getMessage(),
-                            'stacktrace' => $exception->getTrace()
-                        ]);
+                        Log::critical("An exception occured while processing the job: " . $exception->getMessage());
                         error_log("An exception occured while processing the job: " . $exception->getMessage());
                     } else {
                         Log::info("An error returned while processing, error: " . $error->error);

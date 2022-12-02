@@ -26,9 +26,4 @@ class MediaSource extends BaseMediaSource
             IdentifyMusicProcessor::class
         ];
     }
-
-    public function toArray(): array
-    {
-        return get_object_vars($this);
-    }
 }

@@ -4,7 +4,6 @@ namespace App\MediaSource\AcoustID\Processors;
 
 use App\MediaSource\AcoustID\AcoustID;
 use App\MediaSource\Base\Processors\Processor;
-use App\MediaSource\Base\Processors\ProcessorError;
 use App\MediaSource\ProcessorItem;
 use App\Models\Album;
 use App\Models\Artist;
@@ -26,6 +25,11 @@ class IdentifyMusicProcessor extends Processor
 
         $acoustID = new AcoustID();
         $info = $acoustID->getMediaInfo($upload->getFilePath());
+
+        // Audio Fingerprint lookup returned no results, Skip.
+        if($info === null) {
+            return $next($item);
+        }
 
         $artists = [];
         foreach($info->getArtists() as $artist) {

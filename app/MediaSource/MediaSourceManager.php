@@ -50,19 +50,4 @@ class MediaSourceManager
     {
         return $this->source;
     }
-
-    /**
-     * Returns an array of all currently registered MediaSource arrays
-     * @return array
-     */
-    public function toArray(): array
-    {
-        $result = [];
-
-        foreach ($this->getSources() as $s) {
-            $result[] = $s->toArray();
-        }
-
-        return $result;
-    }
 }
