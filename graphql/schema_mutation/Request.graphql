@@ -1,4 +1,6 @@
 extend type Mutation {
     addRequest(id: ID!): DefaultResponse!
         @canAccess(permissions: ["website.request"], requireAuth: true)
+
+    updateNowplaying: DefaultResponse!
 }

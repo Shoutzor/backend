@@ -9,7 +9,7 @@ services:
       - "6379:6379"
 
   # In development mode we want to basically override all files
-  backend:
+  api:
     volumes:
       # Required for the node_modules to stay after having built the image
       - /code/node_modules

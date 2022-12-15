@@ -12,4 +12,9 @@ extend type Query {
     ): [Request!]!
         @paginate(defaultCount: 10)
 
+    "Used by the shoutzor player to get queue items. Will automatically add more if needed"
+    getQueue(
+        items: Int!
+    ): [Request!]
+        @field(resolver: "GetQueue")
 }

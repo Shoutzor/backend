@@ -8,7 +8,7 @@ services:
       - MYSQL_PASSWORD=${DB_PASSWORD}
       - MYSQL_RANDOM_ROOT_PASSWORD=true
     networks:
-      - shoutzor-backend
+      - backend
 
   redis:
     image: 'bitnami/redis:7.0'
@@ -16,9 +16,9 @@ services:
       - REDIS_PASSWORD
       - REDIS_TLS_ENABLED
     networks:
-      - shoutzor-backend
+      - backend
 
-  backend:
+  api:
     build:
       context: .
       dockerfile: ./backend.Dockerfile
@@ -33,11 +33,12 @@ services:
       - tmp:/code
       - storage_temp:/code/storage/app/temp
       - storage_media:/code/storage/app/media
-    networks:
-      - shoutzor-backend
     depends_on:
       - redis
       - mysql
+    networks:
+      - backend
+      - shoutzor_api
 
   worker:
     build:
@@ -54,14 +55,12 @@ services:
       - mysql
       - redis
     networks:
-      - shoutzor-backend
+      - backend
 
   echo:
     image: 'quay.io/soketi/soketi:1.1.0-16-debian'
     ports:
       - "6001:6001"
-    networks:
-      - shoutzor-backend
     environment:
       - SOKETI_DEBUG
       - SOKETI_SSL_CERT
@@ -82,6 +81,8 @@ services:
       - SOKETI_APP_MANAGER_CACHE_ENABLED
     depends_on:
       - redis
+    networks:
+      - backend
 
 volumes:
   # The default mount for the app directory, changes in here should not be persisted.
@@ -102,5 +103,8 @@ volumes:
       device: "${PWD}/storage/app/temp"
 
 networks:
-  shoutzor-backend:
+  backend:
     enable_ipv6: false
+  # Separate network to allow other docker-compose projects to connect to the API
+  shoutzor_api:
+    name: shoutzor_api

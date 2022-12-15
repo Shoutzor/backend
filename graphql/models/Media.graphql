@@ -1,10 +1,11 @@
 type Media implements HasArtists & HasImage {
     id: ID!
     title: String!
+    filename: String!
     duration: Int!
     is_video: Boolean!
     image: String
     source: String!
-    album: [Album!]! @belongsToMany
+    albums: [Album!]! @belongsToMany
     artists: [Artist!]! @belongsToMany
 }

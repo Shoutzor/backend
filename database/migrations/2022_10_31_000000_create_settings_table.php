@@ -44,6 +44,17 @@ class CreateSettingsTable extends Migration
                 'readonly' => true
             ],
             [
+                'key' => 'shoutzor_player_token',
+                'value' => $this->toValue('Y0urPl4yerP4sswordH3re!'),
+                'type' => 'string',
+                'name' => 'Shoutz0r Player Auth Token',
+                'description' => 'A token that the Shoutz0r player can use to authenticate itself. Make sure the player is configured to use this same token.',
+                'group' => 'shoutzor',
+                'order' => 11,
+                'validation' => '',
+                'readonly' => false
+            ],
+            [
                 'key' => 'user_must_verify_email',
                 'value' => $this->toValue(false),
                 'type' => 'boolean',
@@ -120,8 +131,19 @@ class CreateSettingsTable extends Migration
                 'type' => 'boolean',
                 'name' => 'Enable AcoustID Audio Fingerprinting',
                 'description' => 'Whether AcoustID Audio Fingerprinting should be used to identify whats uploaded',
-                'group' => 'uploads',
-                'order' => 50,
+                'group' => 'acoustid',
+                'order' => 10,
+                'validation' => '',
+                'readonly' => false
+            ],
+            [
+                'key' => 'acoustid_required',
+                'value' => $this->toValue(false),
+                'type' => 'boolean',
+                'name' => 'Require AcoustID Recognition',
+                'description' => 'Should a song be rejected if it is not recognized by AcoustID',
+                'group' => 'acoustid',
+                'order' => 20,
                 'validation' => '',
                 'readonly' => false
             ],
@@ -131,8 +153,8 @@ class CreateSettingsTable extends Migration
                 'type' => 'string',
                 'name' => 'AcoustID API Key',
                 'description' => 'The AcoustID API Key to use',
-                'group' => 'uploads',
-                'order' => 51,
+                'group' => 'acoustid',
+                'order' => 30,
                 'validation' => '',
                 'readonly' => false
             ]

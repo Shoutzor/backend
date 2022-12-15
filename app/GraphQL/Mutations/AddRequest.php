@@ -18,10 +18,6 @@ use Nuwave\Lighthouse\Execution\Utils\Subscription;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * Override the original class because that always expects an email & password combination
- * Shoutz0r however uses a username & password combination
- */
 class AddRequest
 {
     use HasAuthenticatedUser;
