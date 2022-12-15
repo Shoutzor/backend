@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
 class Playlist
@@ -90,31 +91,34 @@ class Playlist
      */
     private static function getRandomTrack(bool $forced = false): Model|Builder|null
     {
-        $requestHistoryTime = now()->addMinutes(1);
-        $artistHistoryTime = now()->addMinutes(1);
+        $requestHistoryTime = now()->subMinutes(ShoutzorSetting::getSetting('shoutzor_request_media_delay'));
+        $artistHistoryTime = now()->subMinutes(ShoutzorSetting::getSetting('shoutzor_request_artist_delay'));
 
         try {
             //Build a list of media id's that are available to play, next, randomly pick one
             $m = Media::query()
+                ->select('media.*')
                 ->leftJoin('artist_media', 'artist_media.media_id', '=', 'media.id')
                 ->leftJoin('artists', 'artist_media.artist_id', '=', 'artists.id')
                 ->leftJoin('requests', 'requests.media_id', '=',  'media.id')
                 //Exclude all media_id's that are in already in queue or have recently been played
                 ->whereNotIn('media.id', function ($query) use ($requestHistoryTime) {
                     $query
-                        ->select('media.id')
+                        ->select('requests.media_id')
+                        ->from('requests')
                         ->whereNull('requests.played_at')
-                        ->orWhere('requests.played_at', '<', $requestHistoryTime);
+                        ->orWhere('requests.played_at', '>', $requestHistoryTime);
                 })
-                //Next, exclude all media id's whose artists have recently been played (or are queued right now) and exclude those too
-                ->whereNotIn('artists.id', function ($query) use ($artistHistoryTime) {
+                //Next, exclude all artists that have recently been played (or are queued right now) and exclude those too
+                ->whereNotIn('artist_media.artist_id', function ($query) use ($artistHistoryTime) {
                     $query
-                        ->select('artists.id')
+                        ->select('artist_media.artist_id')
+                        ->from('artist_media')
+                        ->leftJoin('requests', 'requests.media_id', '=', 'artist_media.media_id')
                         ->whereNull('requests.played_at')
-                        ->orWhere('requests.played_at', '<', $artistHistoryTime);
+                        ->orWhere('requests.played_at', '>', $artistHistoryTime);
                 })
                 ->inRandomOrder(microtime(true))
-                ->limit(1)
                 ->firstOrFail();
 
             return $m;
@@ -122,8 +126,12 @@ class Playlist
         // When no results were found, this can happen if there are too few songs
         // if they have all been played too recently, none of them will match the set conditions
         catch(ModelNotFoundException $e) {
+            Log::error("No tracks available that havent been recently played!");
+
             // If forced is true, just grab a random file without any restrictions (ie: panic-mode)
             if($forced) {
+                Log::info("Forced is set to true, playing random track");
+
                 $m = Media::query()
                     ->inRandomOrder()
                     ->first();
@@ -132,7 +140,6 @@ class Playlist
             }
         }
         catch (\Exception $e) {
-            throw $e;
             return null;
         }
 

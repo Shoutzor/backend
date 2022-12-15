@@ -3,6 +3,7 @@
 namespace App\GraphQL\Mutations;
 
 use App\Exceptions\MediaQueueException;
+use App\Helpers\ShoutzorSetting;
 use App\Models\Media;
 use App\Models\Request;
 use App\Models\User;
@@ -95,7 +96,7 @@ class AddRequest
                 requested_at > ?
             ', [
                 $user->id,
-                Carbon::now()->subSeconds(config('shoutzor.userRequestDelay'))
+                Carbon::now()->subMinutes(ShoutzorSetting::getSetting('shoutzor_request_user_delay'))
             ])
             ->orderBy('requested_at', 'DESC')
             ->limit(1)
@@ -127,7 +128,7 @@ class AddRequest
                 )
             ', [
                 $media->id,
-                Carbon::now()->subSeconds(config('shoutzor.mediaRequestDelay')),
+                Carbon::now()->subMinutes(ShoutzorSetting::getSetting('shoutzor_request_media_delay')),
                 $media->id
             ])
             ->orderBy('requested_at', 'DESC')
@@ -173,7 +174,7 @@ class AddRequest
                 )
             ', array_merge(
                 $artists,
-                [Carbon::now()->subSeconds(config('shoutzor.artistRequestDelay'))],
+                [Carbon::now()->subMinutes(ShoutzorSetting::getSetting('shoutzor_request_artist_delay'))],
                 $artists
             ))
             ->orderBy('requested_at', 'DESC')

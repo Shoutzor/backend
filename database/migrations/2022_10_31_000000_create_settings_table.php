@@ -50,7 +50,40 @@ class CreateSettingsTable extends Migration
                 'name' => 'Shoutz0r Player Auth Token',
                 'description' => 'A token that the Shoutz0r player can use to authenticate itself. Make sure the player is configured to use this same token.',
                 'group' => 'shoutzor',
-                'order' => 11,
+                'order' => 20,
+                'validation' => '',
+                'readonly' => false
+            ],
+            [
+                'key' => 'shoutzor_request_user_delay',
+                'value' => $this->toValue(10),
+                'type' => 'integer',
+                'name' => 'Request User delay',
+                'description' => 'The time (in minutes) before a user is allowed to make another request',
+                'group' => 'shoutzor',
+                'order' => 30,
+                'validation' => '',
+                'readonly' => false
+            ],
+            [
+                'key' => 'shoutzor_request_media_delay',
+                'value' => $this->toValue(60),
+                'type' => 'integer',
+                'name' => 'Request Media delay',
+                'description' => 'The time (in minutes) when a media file can be played again',
+                'group' => 'shoutzor',
+                'order' => 50,
+                'validation' => '',
+                'readonly' => false
+            ],
+            [
+                'key' => 'shoutzor_request_artist_delay',
+                'value' => $this->toValue(30),
+                'type' => 'integer',
+                'name' => 'Request Artist delay',
+                'description' => 'The time (in minutes) when an artist can be played again',
+                'group' => 'shoutzor',
+                'order' => 50,
                 'validation' => '',
                 'readonly' => false
             ],
