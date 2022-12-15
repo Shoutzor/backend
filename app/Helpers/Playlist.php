@@ -24,7 +24,7 @@ class Playlist
     {
         $queue = Request::query()
             ->whereNull('played_at')
-            ->orderBy('requested_at', 'DESC')
+            ->orderBy('requested_at', 'ASC')
             ->limit($items)
             ->get();
 
@@ -45,8 +45,7 @@ class Playlist
     {
         $topRequest = Request::query()
             ->whereNull('played_at')
-            ->orderBy('requested_at', 'DESC')
-            ->limit(1)
+            ->orderBy('requested_at', 'ASC')
             ->firstOrFail();
 
         $topRequest->update([
