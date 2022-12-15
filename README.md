@@ -14,7 +14,7 @@
 
 ## Introduction
 
-This is the backend of Shoutz0r, consisting of both the API and the Queue worker.
+This is the backend of Shoutz0r, consisting of both the API and the Worker.
 
 Built using Laravel, GraphQL (Lighthouse) & Apollo.
 

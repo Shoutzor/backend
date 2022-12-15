@@ -21,7 +21,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./backend.Dockerfile
+      dockerfile: api.Dockerfile
       args:
         APP_ENV: "${APP_ENV:-production}"
     image: xorinzor/shoutz0r-backend:${APP_ENV}

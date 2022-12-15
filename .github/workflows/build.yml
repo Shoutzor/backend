@@ -22,13 +22,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Build and push Backend
+        name: Build and push API
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: './backend.Dockerfile'
+          file: './api.Dockerfile'
           push: true
-          tags: xorinzor/shoutz0r-backend:latest
+          tags: xorinzor/shoutz0r-api:latest
       -
         name: Build and push Worker
         uses: docker/build-push-action@v3

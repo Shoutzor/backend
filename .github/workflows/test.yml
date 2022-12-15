@@ -41,7 +41,7 @@ jobs:
           echo "REDIS_HOST=redis" >> $GITHUB_ENV
       - 
         name: Run PHPUnit
-        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml run backend php artisan test
+        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml run api php artisan test
 
   sonarcloud:
     name: SonarCloud
