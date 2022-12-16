@@ -33,6 +33,7 @@ services:
       - tmp:/code
       - storage_temp:/code/storage/app/temp
       - storage_media:/code/storage/app/media
+      - storage_albums:/code/storage/app/album
     depends_on:
       - redis
       - mysql
@@ -51,6 +52,7 @@ services:
       - tmp:/code
       - storage_temp:/code/storage/app/temp
       - storage_media:/code/storage/app/media
+      - storage_albums:/code/storage/app/album
     depends_on:
       - mysql
       - redis
@@ -94,6 +96,13 @@ volumes:
       o: bind
       type: none
       device: "${PWD}/storage/app/media"
+  # The directory where album images can be found
+  storage_albums:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "${PWD}/storage/app/album"
   # The directory where uploaded files (before they're processed) can be found
   storage_temp:
     driver: local

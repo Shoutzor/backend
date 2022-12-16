@@ -5,8 +5,6 @@ use App\Exceptions\AcoustIDException;
 use App\Exceptions\AcoustIDNoResultsException;
 use App\Exceptions\AcoustIDScoreTooLowException;
 use App\Helpers\ShoutzorSetting;
-use App\MediaSource\AcoustID\Result\AcoustIDAlbum;
-use App\MediaSource\AcoustID\Result\AcoustIDArtist;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
@@ -93,12 +91,6 @@ class AcoustID {
 
         $data = json_decode($response, true);
 
-        // Check if the API returned an error
-        if($data['status'] !== "ok") {
-            Log::error("AcoustID API returned an error: " . $data?->error?->message);
-            throw new AcoustIDException("AcoustID API returned an error: " . $data?->error?->message);
-        }
-
         $highestScore = 0;
         $result = null;
 
@@ -133,79 +125,40 @@ class AcoustID {
     }
 
     private function buildResult($data) : AcoustIDResult {
-        $bestResult = null;
-
-        if(!array_key_exists('recordings', $data)) {
+        if(!array_key_exists('id', $data)) {
             throw new AcoustIDNoResultsException("AcoustID API returned no (valid) results");
         }
 
-        $hasArtists = false;
-        $hasArtistsWithoutShittyReleaseGroups = false;
-
-        // Loop through all recordings to see if any of them have artists
+        $result = null;
         foreach($data['recordings'] as $recording) {
             if(!array_key_exists('title', $recording)) continue;
-            if(array_key_exists('artists', $recording)) {
-                $hasArtists = true;
+            if(!array_key_exists('artists', $recording) || count($recording['artists']) == 0) continue;
+            if(array_key_exists('releasegroups',$recording)) {
+                $skip = false;
 
-                // Also check if there happens do be a recording with artists, and a "normal" album
-                if(array_key_exists('releasegroups', $recording)) {
-                    foreach($recording['releasegroups'] as $releasegroup) {
-                        if(!array_key_exists('type', $releasegroup)) continue;
-                        if(strtolower($releasegroup['type']) !== "album") continue;
-                        if(!array_key_exists('secondarytypes', $releasegroup)) {
-                            $hasArtistsWithoutShittyReleaseGroups = true;
-                            break 2;
-                        }
+                foreach($recording['releasegroups'] as $releasegroup) {
+                    if(array_key_exists('secondarytypes', $releasegroup)) {
+                        $skip = true;
+                        break;
                     }
                 }
+
+                if($skip) continue;
             }
+
+            $result = $recording;
+            break;
         }
 
-        $bestReleasegroup = null;
-
-        // Do a 2nd pass, and now we want to get the best possible recording
-        foreach($data['recordings'] as $recording) {
-            if(!array_key_exists('title', $recording)) continue;
-            if($hasArtists && !array_key_exists('artists', $recording)) continue;
-            if($hasArtistsWithoutShittyReleaseGroups && array_key_exists('releasegroups', $recording)) {
-                foreach($recording['releasegroups'] as $releasegroup) {
-                    if(array_key_exists('secondarytypes', $releasegroup)) continue;
-                    if(!array_key_exists('type', $releasegroup)) continue;
-                    if(strtolower($releasegroup['type']) !== "album") continue;
-
-                    $bestReleasegroup = $releasegroup;
-                    $bestResult = $recording;
-                    break 2;
-                }
-            }
-            else {
-                $bestResult = $recording;
-                break;
-            }
-        }
-
-        if($bestResult && array_key_exists('title', $bestResult)) {
-            $result = new AcoustIDResult($data['title']);
-        } else {
+        if(!$result) {
             throw new AcoustIDNoResultsException("AcoustID API returned no (valid) results");
         }
 
-        //Get the media file artists
-        if(array_key_exists('artists', $data)) {
-            foreach($data['artists'] as $artist) {
-                $result->addArtist(new AcoustIDArtist(
-                    $artist['id'],
-                    $artist['name']
-                ));
-            }
-        }
+        $lastFm = new LastFM();
+        $result = $lastFm->getTrackInfo($result['title'], $result['artists'][0]['name']);
 
-        if($bestReleasegroup) {
-            $result->addAlbum(new AcoustIDAlbum(
-                $bestReleasegroup['id'],
-                $bestReleasegroup['title']
-            ));
+        if(!$result) {
+            throw new AcoustIDNoResultsException("LastFM API returned no (valid) results");
         }
 
         return $result;

@@ -14,6 +14,7 @@ use Closure;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class IdentifyMusicProcessor extends Processor
 {
@@ -44,9 +45,9 @@ class IdentifyMusicProcessor extends Processor
         $lastFM = new LastFM();
         $lastFMEnabled = ShoutzorSetting::getSetting('acoustid_use_lastfm');
 
-        $info = $acoustID->getMediaInfo($upload->getFilePath());
-
         try {
+            $info = $acoustID->getMediaInfo($upload->getFilePath());
+
             // Audio Fingerprint lookup returned no results
             if($info === null) {
                 throw new Exception("AcoustID returned no results");
@@ -54,40 +55,27 @@ class IdentifyMusicProcessor extends Processor
 
             $artists = [];
             foreach($info->getArtists() as $artist) {
-                $args = [];
-
-                if($lastFMEnabled) {
-                    $artistInfo = $lastFM->getArtistInfo($artist);
-                    if ($artistInfo !== false) {
-                        $img = $this->downloadImage($artistInfo['image'], Artist::STORAGE_PATH, $artist->getId());
-                        if($img) {
-                            $args['image'] = $img;
-                        }
-                    }
-                }
-
-                $artists[] = Artist::updateOrCreate([
+                $artists[] = Artist::firstOrCreate([
                     'name' => $artist->getName()
-                ], $args);
+                ]);
             }
 
             $albums = [];
             foreach($info->getAlbums() as $album) {
-                $args = [];
+                $a = Album::firstOrCreate([
+                    'title' => $album->getName()
+                ]);
 
-                if($lastFMEnabled) {
-                    $albumInfo = $lastFM->getAlbumInfo($album);
-                    if ($albumInfo !== false) {
-                        $img = $this->downloadImage($albumInfo['image'], Album::STORAGE_PATH, $album->getId());
-                        if($img) {
-                            $args['image'] = $img;
-                        }
+                if(!empty($a->image) && $album->getImage()) {
+                    $img = $this->downloadImage($album->getImage(), Album::STORAGE_PATH, Str::uuid());
+                    if ($img) {
+                        $a->update([
+                            'image' => $img
+                        ]);
                     }
                 }
 
-                $albums[] = Album::updateOrCreate([
-                    'title' => $album->getName()
-                ], $args);
+                $albums[] = $a;
             }
 
             // Update the media object with the obtained information
@@ -109,17 +97,40 @@ class IdentifyMusicProcessor extends Processor
         }
     }
 
+    /**
+     * @TODO fix this horrible mess
+     *
+     * @param $imageUrl
+     * @param $target
+     * @param $id
+     * @return string|null
+     */
     private function downloadImage($imageUrl, $target, $id) {
         if(empty($imageUrl) || empty($target)) {
-            return false;
+            return null;
         }
 
-        $pInfo = pathinfo($imageUrl);
-        $filename = 'acoustId_' . $id . '.' . $pInfo['extension'];
+        try {
+            $pInfo = pathinfo($imageUrl);
+            $filename = 'acoustId_' . $id . '.' . $pInfo['extension'];
 
-        Storage::put(storage_path($target . $filename), file_get_contents($imageUrl));
+            $targetPath = storage_path('app/' . $target . $filename);
 
-        return $filename;
+            $download = file_get_contents($imageUrl);
+            if(!$download) {
+                throw new Exception("Failed downloading the image");
+            }
+
+            file_put_contents($targetPath, $download);
+
+            return $filename;
+        }
+        catch (Exception $e) {
+            Log::error("An error occured while downloading the album image", [
+                'error' => $e->getMessage()
+            ]);
+            return null;
+        }
     }
 
 }
