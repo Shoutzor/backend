@@ -34,7 +34,7 @@ class Album extends Model
 
     public function getImageAttribute($value)
     {
-        if(File::exists(storage_path(self::STORAGE_PATH . $value))) {
+        if(File::exists(storage_path('app/' . self::STORAGE_PATH . $value))) {
             return $value;
         }
 

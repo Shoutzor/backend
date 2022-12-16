@@ -109,14 +109,16 @@ class Playlist
                         ->orWhere('requests.played_at', '>', $requestHistoryTime);
                 })
                 //Next, exclude all artists that have recently been played (or are queued right now) and exclude those too
-                ->whereNotIn('artist_media.artist_id', function ($query) use ($artistHistoryTime) {
+                /*
+                 * @TODO fix this. For some reason it thinks because of this bit that there are no available tracks.
+                 * ->whereNotIn('artist_media.artist_id', function ($query) use ($artistHistoryTime) {
                     $query
                         ->select('artist_media.artist_id')
                         ->from('artist_media')
                         ->leftJoin('requests', 'requests.media_id', '=', 'artist_media.media_id')
                         ->whereNull('requests.played_at')
                         ->orWhere('requests.played_at', '>', $artistHistoryTime);
-                })
+                })*/
                 ->inRandomOrder(microtime(true))
                 ->firstOrFail();
 

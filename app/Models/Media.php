@@ -28,8 +28,14 @@ class Media extends Model
 
     public function getImageAttribute($value)
     {
-        if(File::exists(storage_path($value))) {
+        if(File::exists(storage_path('app/' . self::STORAGE_PATH . $value))) {
             return $value;
+        }
+
+        foreach($this->albums() as $album) {
+            if(!empty($album->image)) {
+                return $album->image;
+            }
         }
 
         return '/images/placeholder/album_placeholder.jpg';
