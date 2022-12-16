@@ -2,6 +2,9 @@
 
 namespace App\MediaSource\AcoustID;
 
+use App\MediaSource\AcoustID\Result\AcoustIDAlbum;
+use App\MediaSource\AcoustID\Result\AcoustIDArtist;
+
 class AcoustIDResult
 {
     private array $artists = [];
@@ -11,24 +14,35 @@ class AcoustIDResult
         private readonly string $title
     ) {}
 
-    public function getTitle() {
+    public function getTitle(): string
+    {
         return $this->title;
     }
 
-    public function getArtists() {
+    /**
+     * @return array
+     */
+    public function getArtists(): array
+    {
         return $this->artists;
     }
 
-    public function getAlbums() {
+    /**
+     * @return array
+     */
+    public function getAlbums(): array
+    {
         return $this->albums;
     }
 
-    public function addArtist(string $name) {
-        $this->artists[] = $name;
+    public function addArtist(AcoustIDArtist $artist): void
+    {
+        $this->artists[] = $artist;
     }
 
-    public function addAlbum(string $title) {
-        $this->albums[] = $title;
+    public function addAlbum(AcoustIDAlbum $album): void
+    {
+        $this->albums[] = $album;
     }
 
 }

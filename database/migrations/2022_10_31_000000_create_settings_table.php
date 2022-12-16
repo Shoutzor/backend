@@ -185,9 +185,31 @@ class CreateSettingsTable extends Migration
                 'value' => $this->toValue(''),
                 'type' => 'string',
                 'name' => 'AcoustID API Key',
-                'description' => 'The AcoustID API Key to use',
+                'description' => 'The AcoustID API Key to use. Can be created at https://acoustid.org/webservice',
                 'group' => 'acoustid',
                 'order' => 30,
+                'validation' => '',
+                'readonly' => false
+            ],
+            [
+                'key' => 'acoustid_use_lastfm',
+                'value' => $this->toValue(false),
+                'type' => 'boolean',
+                'name' => 'Use LastFM for improving information',
+                'description' => 'Whether to improve the results from AcoustID with rich information from LastFM',
+                'group' => 'acoustid',
+                'order' => 40,
+                'validation' => '',
+                'readonly' => false
+            ],
+            [
+                'key' => 'acoustid_lastfm_apikey',
+                'value' => $this->toValue(''),
+                'type' => 'string',
+                'name' => 'LastFM API Key',
+                'description' => 'The LastFM API Key to use. Can be created at https://www.last.fm/api',
+                'group' => 'acoustid',
+                'order' => 50,
                 'validation' => '',
                 'readonly' => false
             ]

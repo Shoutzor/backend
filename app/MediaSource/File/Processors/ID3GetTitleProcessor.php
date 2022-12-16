@@ -31,11 +31,9 @@ class ID3GetTitleProcessor extends Processor
         # Iterate over tags, return the resulting array
         $id3tags = $this->parseTags($id3info);
 
-        if(!array_key_exists('title', $id3tags)) {
-            return new ProcessorError("could not determine title of media file");
+        if(array_key_exists('title', $id3tags)) {
+            $media->title = $id3tags['title'][0];
         }
-
-        $media->title = $id3tags['title'][0];
 
         // File exists, continue processing
         $next($item);

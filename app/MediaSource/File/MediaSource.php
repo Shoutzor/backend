@@ -8,6 +8,7 @@ use App\MediaSource\File\Processors\FileExistsProcessor;
 use App\MediaSource\File\Processors\ID3GetTitleProcessor;
 use App\MediaSource\File\Processors\MediaDurationProcessor;
 use App\MediaSource\File\Processors\MediaFileHashProcessor;
+use App\MediaSource\File\Processors\MediaValidatePostProcessing;
 
 class MediaSource extends BaseMediaSource
 {
@@ -23,7 +24,8 @@ class MediaSource extends BaseMediaSource
             MediaFileHashProcessor::class,
             MediaDurationProcessor::class,
             ID3GetTitleProcessor::class,
-            IdentifyMusicProcessor::class
+            IdentifyMusicProcessor::class,
+            MediaValidatePostProcessing::class
         ];
     }
 }

@@ -5,10 +5,15 @@ use App\Exceptions\AcoustIDException;
 use App\Exceptions\AcoustIDNoResultsException;
 use App\Exceptions\AcoustIDScoreTooLowException;
 use App\Helpers\ShoutzorSetting;
+use App\MediaSource\AcoustID\Result\AcoustIDAlbum;
+use App\MediaSource\AcoustID\Result\AcoustIDArtist;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
 
+/**
+ * @TODO Refactor this class
+ */
 class AcoustID {
 
     private readonly string $apiKey;
@@ -28,10 +33,7 @@ class AcoustID {
             }
 
             // Get matching information for the provided fingerprint
-            $data = $this->lookup(round($data->duration), $data->fingerprint);
-
-            //Return the results
-            return $this->buildResult($data);
+            return $this->lookup(round($data->duration), $data->fingerprint);
         }
         /*
          * Specifically catch the no-results exceptions. Only those indicate a successful lookup
@@ -72,22 +74,24 @@ class AcoustID {
      * @throws AcoustIDScoreTooLowException thrown if the score of the result returned by the API is too low
      */
     public function lookup($duration, $fingerprint) : AcoustIDResult {
-        $response = Http::get('https://api.acoustid.org/v2/lookup', [
-            'client' => $this->apiKey,
-            'meta' => 'compress+recordings+sources+releasegroups',
-            'duration' => $duration,
-            'fingerprint' => $fingerprint
-        ]);
+        $url = 'http://api.acoustid.org/v2/lookup?client=' . $this->apiKey;
+        $url .= '&meta=compress+recordings+sources+releasegroups&duration=' . $duration;
+        $url .= '&fingerprint=' . $fingerprint;
 
-        if($response->ok() === false) {
-            Log::error("An error occurred while contacting the AcoustID API", [
-                'response' => $response->body()
-            ]);
-            throw new AcoustIDException("An error occurred while contacting the AcoustID API");
+        // Guzzle encodes the "+" character with no (easy) way of disabling it..
+        // Will have to use curl here.
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-type: application/json')); // Assuming you're requesting JSON
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        $response = curl_exec($ch);
+
+        if($response === false) {
+            throw new AcoustIDException("Failed to fetch API result using Curl");
         }
 
-        // Get the JSON response
-        $data = $response->json();
+        $data = json_decode($response, true);
 
         // Check if the API returned an error
         if($data['status'] !== "ok") {
@@ -125,28 +129,83 @@ class AcoustID {
         }
 
         // Return the best result
-        return $result;
+        return $this->buildResult($result);
     }
 
     private function buildResult($data) : AcoustIDResult {
-        $result = new AcoustIDResult($data['title']);
+        $bestResult = null;
+
+        if(!array_key_exists('recordings', $data)) {
+            throw new AcoustIDNoResultsException("AcoustID API returned no (valid) results");
+        }
+
+        $hasArtists = false;
+        $hasArtistsWithoutShittyReleaseGroups = false;
+
+        // Loop through all recordings to see if any of them have artists
+        foreach($data['recordings'] as $recording) {
+            if(!array_key_exists('title', $recording)) continue;
+            if(array_key_exists('artists', $recording)) {
+                $hasArtists = true;
+
+                // Also check if there happens do be a recording with artists, and a "normal" album
+                if(array_key_exists('releasegroups', $recording)) {
+                    foreach($recording['releasegroups'] as $releasegroup) {
+                        if(!array_key_exists('type', $releasegroup)) continue;
+                        if(strtolower($releasegroup['type']) !== "album") continue;
+                        if(!array_key_exists('secondarytypes', $releasegroup)) {
+                            $hasArtistsWithoutShittyReleaseGroups = true;
+                            break 2;
+                        }
+                    }
+                }
+            }
+        }
+
+        $bestReleasegroup = null;
+
+        // Do a 2nd pass, and now we want to get the best possible recording
+        foreach($data['recordings'] as $recording) {
+            if(!array_key_exists('title', $recording)) continue;
+            if($hasArtists && !array_key_exists('artists', $recording)) continue;
+            if($hasArtistsWithoutShittyReleaseGroups && array_key_exists('releasegroups', $recording)) {
+                foreach($recording['releasegroups'] as $releasegroup) {
+                    if(array_key_exists('secondarytypes', $releasegroup)) continue;
+                    if(!array_key_exists('type', $releasegroup)) continue;
+                    if(strtolower($releasegroup['type']) !== "album") continue;
+
+                    $bestReleasegroup = $releasegroup;
+                    $bestResult = $recording;
+                    break 2;
+                }
+            }
+            else {
+                $bestResult = $recording;
+                break;
+            }
+        }
+
+        if($bestResult && array_key_exists('title', $bestResult)) {
+            $result = new AcoustIDResult($data['title']);
+        } else {
+            throw new AcoustIDNoResultsException("AcoustID API returned no (valid) results");
+        }
 
         //Get the media file artists
         if(array_key_exists('artists', $data)) {
             foreach($data['artists'] as $artist) {
-                $result->addArtist($artist['name']);
+                $result->addArtist(new AcoustIDArtist(
+                    $artist['id'],
+                    $artist['name']
+                ));
             }
         }
 
-        //Get the media file albums
-        if(array_key_exists('releasegroups', $data)) {
-            foreach($data['releasegroups'] as $release) {
-                // Validate the releasegroup is an album type
-                if(!array_key_exists('type', $release)) continue;
-                if(strtolower($release['type']) !== "album") continue;
-
-                $result->addAlbum($release['title']);
-            }
+        if($bestReleasegroup) {
+            $result->addAlbum(new AcoustIDAlbum(
+                $bestReleasegroup['id'],
+                $bestReleasegroup['title']
+            ));
         }
 
         return $result;

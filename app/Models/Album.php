@@ -20,6 +20,8 @@ class Album extends Model
      */
     public $timestamps = false;
 
+    protected $fillable = ['title', 'image'];
+
     public function artists()
     {
         return $this->hasManyThrough('App\Models\Artist', 'App\Models\Media', 'media_id', 'album_id', 'album_id', '');
@@ -32,7 +34,7 @@ class Album extends Model
 
     public function getImageAttribute($value)
     {
-        if(File::exists(storage_path($value))) {
+        if(File::exists(storage_path(self::STORAGE_PATH . $value))) {
             return $value;
         }
 

@@ -158,11 +158,15 @@ class ProcessUpload implements ShouldQueue
      */
     private function createBaseMediaObject(Upload $upload): Media
     {
-        return new Media([
+        $m = new Media([
             'title' => '',
             'filename' => $upload->filename,
             'duration' => 0,
             'is_video' => false
         ]);
+
+        $m->save();
+
+        return $m;
     }
 }

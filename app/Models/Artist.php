@@ -13,6 +13,8 @@ class Artist extends Model
 
     const STORAGE_PATH = 'artist/';
 
+    protected $fillable = ['name', 'image'];
+
     public function albums()
     {
         return $this->belongsToMany('App\Models\Album');
@@ -25,7 +27,7 @@ class Artist extends Model
 
     public function getImageAttribute($value)
     {
-        if(File::exists(storage_path($value))) {
+        if(File::exists(storage_path(self::STORAGE_PATH . $value))) {
             return $value;
         }
 
