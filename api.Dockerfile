@@ -1,7 +1,7 @@
 # Can be "production" or "local"
 ARG APP_ENV=production
 
-FROM phpswoole/swoole:php8.1-alpine AS base-production
+FROM phpswoole/swoole:php8.2-alpine AS base-production
 
 # Add OpCache
 RUN docker-php-ext-configure opcache --enable-opcache \

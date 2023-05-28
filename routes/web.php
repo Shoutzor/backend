@@ -22,3 +22,6 @@ Route::get('/', function() {
         'status' => 'OK'
     ]);
 });
+
+// Returns the config JSON for the frontend to use
+Route::get('/frontend-config', 'AppController@frontendConfig');

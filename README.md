@@ -22,7 +22,7 @@ API Docs can be found over at [shoutzor.com](https://shoutzor.com/phpdocs/app/ma
 Documentation has yet to be written. Feel free to ask any questions in the `discussions`.
 
 ## Development
-The steps listed below assume you have PHP installed locally.
+The steps listed below assume you have PHP installed locally and are using a linux-based workspace environment.
 
 ### Install Shoutz0r
 1. Open your `.env` file 
