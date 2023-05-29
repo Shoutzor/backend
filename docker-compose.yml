@@ -18,6 +18,33 @@ services:
     networks:
       - backend
 
+  echo:
+    image: 'quay.io/soketi/soketi:1.1.0-16-debian'
+    ports:
+      - "6001:6001"
+    environment:
+      - SOKETI_DEBUG
+      - SOKETI_SSL_CERT
+      - SOKETI_SSL_KEY
+      - SOKETI_SSL_PASS
+      - SOKETI_DEFAULT_APP_ID
+      - SOKETI_DEFAULT_APP_KEY
+      - SOKETI_DEFAULT_APP_SECRET
+      - SOKETI_DEFAULT_APP_WEBHOOKS
+      - SOKETI_DB_REDIS_HOST
+      - SOKETI_DB_REDIS_PORT
+      - SOKETI_DB_REDIS_PASSWORD
+      - SOKETI_DB_REDIS_DB
+      - SOKETI_ADAPTER_DRIVER
+      - SOKETI_CACHE_DRIVER
+      - SOKETI_QUEUE_DRIVER
+      - SOKETI_DB_REDIS_KEY_PREFIX
+      - SOKETI_APP_MANAGER_CACHE_ENABLED
+    depends_on:
+      - redis
+    networks:
+      - backend
+
   api:
     build:
       context: .
@@ -55,33 +82,6 @@ services:
       - storage_albums:/code/storage/app/album
     depends_on:
       - mysql
-      - redis
-    networks:
-      - backend
-
-  echo:
-    image: 'quay.io/soketi/soketi:1.1.0-16-debian'
-    ports:
-      - "6001:6001"
-    environment:
-      - SOKETI_DEBUG
-      - SOKETI_SSL_CERT
-      - SOKETI_SSL_KEY
-      - SOKETI_SSL_PASS
-      - SOKETI_DEFAULT_APP_ID
-      - SOKETI_DEFAULT_APP_KEY
-      - SOKETI_DEFAULT_APP_SECRET
-      - SOKETI_DEFAULT_APP_WEBHOOKS
-      - SOKETI_DB_REDIS_HOST
-      - SOKETI_DB_REDIS_PORT
-      - SOKETI_DB_REDIS_PASSWORD
-      - SOKETI_DB_REDIS_DB
-      - SOKETI_ADAPTER_DRIVER
-      - SOKETI_CACHE_DRIVER
-      - SOKETI_QUEUE_DRIVER
-      - SOKETI_DB_REDIS_KEY_PREFIX
-      - SOKETI_APP_MANAGER_CACHE_ENABLED
-    depends_on:
       - redis
     networks:
       - backend
